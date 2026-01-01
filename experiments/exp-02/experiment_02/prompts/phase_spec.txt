@@ -1,30 +1,43 @@
-EXPERIMENT 02 - PHASE SPECIFICATION
-====================================
+EXPERIMENT 02 — PHASE DECLARATION
+================================
 
-Phase: Evidence Detection
+Phase Name: Evidence Detection
 
-Capability: Detect whether sentences contain evidence related to a topic.
+Purpose of This Phase:
+Select a single, narrow slice of the canonical artifacts for specification derivation.
+This file does NOT define behavior, architecture, or requirements.
 
-Canonical Sources:
-- DeepWiki: ../deep-wiki-spec-files/debater-early-access-program-sdk-Deepwiki.md
-  Section: "Claim and Evidence Detection Services"
-  Section: "EvidenceDetectionClient"
+Canonical Artifacts in Scope:
 
-- Example: ../reference-files/debater_python_api/examples/evidence_detection_example.py
-- Response: ../reference-files/debater_python_api/examples/evidence_detection_response.txt
-- Client: ../reference-files/debater_python_api/api/clients/claim_and_evidence_detection_client.py
+1. DeepWiki
+   - File: ../deep-wiki-spec-files/debater-early-access-program-sdk-Deepwiki.md
+   - Relevant headings to be discovered by the Spec Librarian via the TOC
+   - No headings are pre-approved beyond “related to Evidence Detection”
 
-Scope:
-- ONLY implement Evidence Detection
-- IGNORE all other services (Key Point Analysis, Claim Detection, etc.)
-- Focus on the core run() method behavior
+2. Directory Tree
+   - Root: ../reference-files/debater_python_api/
+   - This directory structure defines the universe of valid concepts and boundaries
 
-Architecture:
-- Must follow api/clients/ structure
-- Must inherit from abstract base
-- Must match witnessed input/output shapes
+3. Examples
+   - Location: ../reference-files/debater_python_api/examples/
+   - Only files whose purpose is evidence detection are in scope
+   - The Spec Librarian must identify which files qualify
 
-Goal:
-- Derive requirements from canonical sources
-- Create small, precise acceptance tests
-- Implement deterministic behavior matching examples
+4. Client Code
+   - Location: ../reference-files/debater_python_api/api/clients/
+   - Only client(s) relevant to evidence detection are in scope
+   - Boundaries must be inferred, not assumed
+
+Out of Scope:
+- All other Debater capabilities
+- All architectural decisions not witnessed in the canonical artifacts
+- All behaviors not supported by triangulation
+
+Important:
+This phase declaration does NOT:
+- define inputs
+- define outputs
+- define invariants
+- define architecture
+
+Those must be DERIVED.
