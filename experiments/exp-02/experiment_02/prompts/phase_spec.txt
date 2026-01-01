@@ -1,0 +1,30 @@
+EXPERIMENT 02 - PHASE SPECIFICATION
+====================================
+
+Phase: Evidence Detection
+
+Capability: Detect whether sentences contain evidence related to a topic.
+
+Canonical Sources:
+- DeepWiki: ../deep-wiki-spec-files/debater-early-access-program-sdk-Deepwiki.md
+  Section: "Claim and Evidence Detection Services"
+  Section: "EvidenceDetectionClient"
+
+- Example: ../reference-files/debater_python_api/examples/evidence_detection_example.py
+- Response: ../reference-files/debater_python_api/examples/evidence_detection_response.txt
+- Client: ../reference-files/debater_python_api/api/clients/claim_and_evidence_detection_client.py
+
+Scope:
+- ONLY implement Evidence Detection
+- IGNORE all other services (Key Point Analysis, Claim Detection, etc.)
+- Focus on the core run() method behavior
+
+Architecture:
+- Must follow api/clients/ structure
+- Must inherit from abstract base
+- Must match witnessed input/output shapes
+
+Goal:
+- Derive requirements from canonical sources
+- Create small, precise acceptance tests
+- Implement deterministic behavior matching examples
