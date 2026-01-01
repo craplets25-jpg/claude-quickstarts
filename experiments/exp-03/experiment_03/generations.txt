@@ -1,0 +1,3 @@
+# DEPRECATED: Use runs/ directory instead
+The generations/ folder is from the old experiment structure.
+All new experiments use runs/YYYY-MM-DD_run-name/ instead.
