@@ -26,7 +26,15 @@ def count_passing_tests(project_dir: Path) -> tuple[int, int]:
 
     try:
         with open(tests_file, "r") as f:
-            tests = json.load(f)
+            data = json.load(f)
+
+        # Handle both array format and object-with-tests format
+        if isinstance(data, list):
+            tests = data
+        elif isinstance(data, dict) and 'tests' in data:
+            tests = data['tests']
+        else:
+            return 0, 0
 
         total = len(tests)
         passing = sum(1 for test in tests if test.get("passes", False))
@@ -36,10 +44,13 @@ def count_passing_tests(project_dir: Path) -> tuple[int, int]:
         return 0, 0
 
 
-def print_session_header(session_num: int, is_initializer: bool) -> None:
-    """Print a formatted header for the session."""
-    session_type = "SPEC LIBRARIAN" if is_initializer else "CODING AGENT"
+def print_session_header(session_num: int, session_type: str = "CODING AGENT") -> None:
+    """Print a formatted header for the session.
 
+    Args:
+        session_num: The session number
+        session_type: One of "SPEC LIBRARIAN", "SPEC REVIEWER", or "CODING AGENT"
+    """
     print("\n" + "=" * 70)
     print(f"  SESSION {session_num}: {session_type}")
     print("=" * 70)

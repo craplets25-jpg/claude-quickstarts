@@ -1,0 +1,256 @@
+[
+  {
+    "id": "TEST-001",
+    "requirement_id": "ED-001",
+    "description": "Verify client accepts list of sentence-topic dictionaries",
+    "test_type": "input_format",
+    "passes": false,
+    "test_steps": [
+      "Create client instance",
+      "Prepare valid input: [{'sentence': 'Test sentence', 'topic': 'Test topic'}]",
+      "Call run() method with input",
+      "Verify method accepts input without error"
+    ],
+    "verification": "Method executes without raising format-related exceptions"
+  },
+  {
+    "id": "TEST-002",
+    "requirement_id": "ED-001",
+    "description": "Verify output preserves input order",
+    "test_type": "behavior",
+    "passes": false,
+    "test_steps": [
+      "Create client instance",
+      "Prepare 3 distinct sentence-topic pairs with identifiable characteristics",
+      "Call run() method",
+      "Verify result list has 3 scores",
+      "Verify scores[0] corresponds to input[0], scores[1] to input[1], scores[2] to input[2]"
+    ],
+    "verification": "Output order matches input order (can verify by using sentences known to produce distinct scores)"
+  },
+  {
+    "id": "TEST-003",
+    "requirement_id": "ED-002",
+    "description": "Verify empty sentence string is rejected",
+    "test_type": "validation",
+    "passes": false,
+    "test_steps": [
+      "Create client instance",
+      "Prepare input with empty sentence: [{'sentence': '', 'topic': 'Test topic'}]",
+      "Call run() method",
+      "Verify exception is raised"
+    ],
+    "verification": "Exception raised for empty sentence"
+  },
+  {
+    "id": "TEST-004",
+    "requirement_id": "ED-002",
+    "description": "Verify empty topic string is rejected",
+    "test_type": "validation",
+    "passes": false,
+    "test_steps": [
+      "Create client instance",
+      "Prepare input with empty topic: [{'sentence': 'Test sentence', 'topic': ''}]",
+      "Call run() method",
+      "Verify exception is raised"
+    ],
+    "verification": "Exception raised for empty topic"
+  },
+  {
+    "id": "TEST-005",
+    "requirement_id": "ED-003",
+    "description": "Verify validation occurs before transformation",
+    "test_type": "pipeline_order",
+    "passes": false,
+    "test_steps": [
+      "Create client instance",
+      "Prepare invalid input with empty sentence",
+      "Call run() method",
+      "Verify validation exception is raised before any processing occurs"
+    ],
+    "verification": "Validation exception raised immediately, indicating validation happens first"
+  },
+  {
+    "id": "TEST-006",
+    "requirement_id": "ED-004",
+    "description": "Verify one score returned per input pair",
+    "test_type": "output_cardinality",
+    "passes": false,
+    "test_steps": [
+      "Create client instance",
+      "Prepare input with N pairs (e.g., N=5)",
+      "Call run() method",
+      "Verify output list has exactly N scores"
+    ],
+    "verification": "len(output) == len(input)"
+  },
+  {
+    "id": "TEST-007",
+    "requirement_id": "ED-004",
+    "description": "Verify each score is numeric",
+    "test_type": "output_type",
+    "passes": false,
+    "test_steps": [
+      "Create client instance",
+      "Prepare valid input with 2 pairs",
+      "Call run() method",
+      "Verify each element in output can be used in numeric operations (e.g., isinstance check or arithmetic)"
+    ],
+    "verification": "All scores are numeric (float or compatible type)"
+  },
+  {
+    "id": "TEST-008",
+    "requirement_id": "ED-005",
+    "description": "Verify client exposes run() method",
+    "test_type": "interface",
+    "passes": false,
+    "test_steps": [
+      "Create client instance via factory",
+      "Verify client has 'run' method",
+      "Verify run() is callable"
+    ],
+    "verification": "hasattr(client, 'run') and callable(client.run)"
+  },
+  {
+    "id": "TEST-009",
+    "requirement_id": "ED-006",
+    "description": "Verify transformation preserves all values",
+    "test_type": "data_integrity",
+    "passes": false,
+    "test_steps": [
+      "Create client instance",
+      "Prepare input with distinctive sentence and topic values",
+      "Call run() method",
+      "Verify processing completes successfully (indicating transformation worked)",
+      "Verify output has same length as input (data not lost)"
+    ],
+    "verification": "Successful processing with correct output count indicates transformation preserved data"
+  },
+  {
+    "id": "TEST-010",
+    "requirement_id": "ED-007",
+    "description": "Verify single-item batch processing",
+    "test_type": "batch_processing",
+    "passes": false,
+    "test_steps": [
+      "Create client instance",
+      "Prepare input with 1 pair",
+      "Call run() method",
+      "Verify returns list with 1 score"
+    ],
+    "verification": "Single-item batches work correctly"
+  },
+  {
+    "id": "TEST-011",
+    "requirement_id": "ED-007",
+    "description": "Verify multi-item batch processing",
+    "test_type": "batch_processing",
+    "passes": false,
+    "test_steps": [
+      "Create client instance",
+      "Prepare input with 4+ pairs",
+      "Call run() method",
+      "Verify returns list with 4+ scores in correct order"
+    ],
+    "verification": "Multi-item batches work correctly"
+  },
+  {
+    "id": "TEST-012",
+    "requirement_id": "ED-008",
+    "description": "Verify client accessible via factory",
+    "test_type": "factory_pattern",
+    "passes": false,
+    "test_steps": [
+      "Create factory instance with API key",
+      "Call factory method to get evidence detection client",
+      "Verify returned object is not None",
+      "Verify returned object has run() method"
+    ],
+    "verification": "Factory creates working client instance"
+  },
+  {
+    "id": "TEST-013",
+    "requirement_id": "ED-008",
+    "description": "Verify factory-created client is immediately usable",
+    "test_type": "factory_pattern",
+    "passes": false,
+    "test_steps": [
+      "Create factory instance",
+      "Get evidence detection client from factory",
+      "Immediately call run() with valid input (no additional setup)",
+      "Verify execution succeeds"
+    ],
+    "verification": "Client works immediately after factory creation"
+  },
+  {
+    "id": "TEST-014",
+    "requirement_id": "ED-009",
+    "description": "Verify missing 'sentence' key raises exception",
+    "test_type": "validation",
+    "passes": false,
+    "test_steps": [
+      "Create client instance",
+      "Prepare input missing 'sentence' key: [{'topic': 'Test topic'}]",
+      "Call run() method",
+      "Verify exception is raised"
+    ],
+    "verification": "Exception raised for missing 'sentence' key"
+  },
+  {
+    "id": "TEST-015",
+    "requirement_id": "ED-009",
+    "description": "Verify missing 'topic' key raises exception",
+    "test_type": "validation",
+    "passes": false,
+    "test_steps": [
+      "Create client instance",
+      "Prepare input missing 'topic' key: [{'sentence': 'Test sentence'}]",
+      "Call run() method",
+      "Verify exception is raised"
+    ],
+    "verification": "Exception raised for missing 'topic' key"
+  },
+  {
+    "id": "TEST-016",
+    "requirement_id": "ED-010",
+    "description": "Verify normal execution completes without timeout",
+    "test_type": "timeout_handling",
+    "passes": false,
+    "test_steps": [
+      "Create client instance",
+      "Prepare valid input with 2 pairs",
+      "Call run() method",
+      "Verify method returns successfully (does not hang or timeout)"
+    ],
+    "verification": "Method completes and returns results"
+  },
+  {
+    "id": "TEST-017",
+    "requirement_id": "ED-012",
+    "description": "Verify scores are numeric values",
+    "test_type": "output_type",
+    "passes": false,
+    "test_steps": [
+      "Create client instance",
+      "Prepare valid input",
+      "Call run() method",
+      "Verify each score can be compared with numeric operators (e.g., score >= 0)"
+    ],
+    "verification": "All scores support numeric operations"
+  },
+  {
+    "id": "TEST-018",
+    "requirement_id": "ED-012",
+    "description": "Verify scores represent confidence values",
+    "test_type": "semantic_correctness",
+    "passes": false,
+    "test_steps": [
+      "Create client instance",
+      "Prepare two inputs: one clearly evidence-related, one clearly unrelated",
+      "Call run() method",
+      "Verify evidence-related sentence gets different score than unrelated sentence",
+      "Scores should reflect relative evidence likelihood"
+    ],
+    "verification": "Scores vary based on evidence likelihood (semantic test)"
+  }
+]

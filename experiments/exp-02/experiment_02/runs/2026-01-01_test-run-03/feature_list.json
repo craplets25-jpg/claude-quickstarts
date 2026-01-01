@@ -1,0 +1,284 @@
+{
+  "capability": "Evidence Detection",
+  "phase": 1,
+  "test_count": 18,
+  "tests": [
+    {
+      "id": "TEST-001",
+      "requirement_id": "ED-001",
+      "description": "Factory method returns evidence detection client instance",
+      "test_type": "instantiation",
+      "passes": true,
+      "test_steps": [
+        "Create factory instance with valid API key",
+        "Call factory method to get evidence detection client",
+        "Verify client instance is returned",
+        "Verify client has run() method"
+      ],
+      "verification": "Client instance exists and has required public method"
+    },
+    {
+      "id": "TEST-002",
+      "requirement_id": "ED-002",
+      "description": "Accepts list of sentence-topic dictionaries and returns scores",
+      "test_type": "input_output_shape",
+      "passes": false,
+      "test_steps": [
+        "Create input: [{'sentence': 'Text A', 'topic': 'Topic 1'}, {'sentence': 'Text B', 'topic': 'Topic 2'}]",
+        "Call client.run(input)",
+        "Verify output is a list",
+        "Verify output length equals input length (2)",
+        "Verify each element is numeric"
+      ],
+      "verification": "Input shape accepted, output shape matches specification"
+    },
+    {
+      "id": "TEST-003",
+      "requirement_id": "ED-003",
+      "description": "Rejects empty sentence field",
+      "test_type": "validation",
+      "passes": false,
+      "test_steps": [
+        "Create input with empty sentence: [{'sentence': '', 'topic': 'Topic'}]",
+        "Call client.run(input)",
+        "Verify error is raised",
+        "Verify error indicates empty sentence field"
+      ],
+      "verification": "Empty sentence field causes validation error"
+    },
+    {
+      "id": "TEST-004",
+      "requirement_id": "ED-003",
+      "description": "Rejects empty topic field",
+      "test_type": "validation",
+      "passes": false,
+      "test_steps": [
+        "Create input with empty topic: [{'sentence': 'Text', 'topic': ''}]",
+        "Call client.run(input)",
+        "Verify error is raised",
+        "Verify error indicates empty topic field"
+      ],
+      "verification": "Empty topic field causes validation error"
+    },
+    {
+      "id": "TEST-005",
+      "requirement_id": "ED-004",
+      "description": "Returns scores in range [0, 1]",
+      "test_type": "output_validation",
+      "passes": false,
+      "test_steps": [
+        "Create valid input with 3 sentence-topic pairs",
+        "Call client.run(input)",
+        "Verify each score >= 0",
+        "Verify each score <= 1"
+      ],
+      "verification": "All output scores are within [0, 1] range"
+    },
+    {
+      "id": "TEST-006",
+      "requirement_id": "ED-006",
+      "description": "Processes multiple sentence-topic pairs in single call",
+      "test_type": "batch_processing",
+      "passes": false,
+      "test_steps": [
+        "Create input with 10 sentence-topic pairs",
+        "Call client.run(input) once",
+        "Verify 10 scores are returned",
+        "Verify operation completes successfully"
+      ],
+      "verification": "Multiple pairs processed in single operation"
+    },
+    {
+      "id": "TEST-007",
+      "requirement_id": "ED-007",
+      "description": "Preserves input order in output",
+      "test_type": "order_preservation",
+      "passes": false,
+      "test_steps": [
+        "Create input: [{'sentence': 'A', 'topic': 'T1'}, {'sentence': 'B', 'topic': 'T2'}, {'sentence': 'C', 'topic': 'T3'}]",
+        "Call client.run(input)",
+        "Verify output[0] corresponds to input[0]",
+        "Verify output[1] corresponds to input[1]",
+        "Verify output[2] corresponds to input[2]"
+      ],
+      "verification": "Output order matches input order (score[i] for input[i])"
+    },
+    {
+      "id": "TEST-008",
+      "requirement_id": "ED-008",
+      "description": "Public run() method accepts correct parameter",
+      "test_type": "api_boundary",
+      "passes": false,
+      "test_steps": [
+        "Get evidence detection client from factory",
+        "Verify client has 'run' method",
+        "Create valid sentence_topic_dicts input",
+        "Call client.run(sentence_topic_dicts)",
+        "Verify method executes without error"
+      ],
+      "verification": "Public run() method exists and accepts correct parameter type"
+    },
+    {
+      "id": "TEST-009",
+      "requirement_id": "ED-010",
+      "description": "Requires API key for authentication",
+      "test_type": "authentication",
+      "passes": false,
+      "test_steps": [
+        "Attempt to create factory with invalid/missing API key",
+        "Verify error is raised",
+        "Create factory with valid API key",
+        "Verify factory creation succeeds"
+      ],
+      "verification": "API key validation occurs and is required"
+    },
+    {
+      "id": "TEST-010",
+      "requirement_id": "ED-004",
+      "description": "Returns one score per input pair",
+      "test_type": "cardinality",
+      "passes": false,
+      "test_steps": [
+        "Create input with N pairs (e.g., N=5)",
+        "Call client.run(input)",
+        "Verify output list length equals N",
+        "Verify each position has exactly one score"
+      ],
+      "verification": "Output cardinality matches input cardinality exactly"
+    },
+    {
+      "id": "TEST-011",
+      "requirement_id": "ED-016",
+      "description": "Handles empty input list gracefully",
+      "test_type": "edge_case",
+      "passes": false,
+      "test_steps": [
+        "Create empty input: []",
+        "Call client.run([])",
+        "Verify no error is raised",
+        "Verify output is empty list: []"
+      ],
+      "verification": "Empty input returns empty output without error"
+    },
+    {
+      "id": "TEST-012",
+      "requirement_id": "ED-015",
+      "description": "Evidence detection produces different scores than claim detection",
+      "test_type": "service_distinction",
+      "passes": false,
+      "test_steps": [
+        "Get evidence detection client from factory",
+        "Get claim detection client from factory (if available)",
+        "Create same input for both clients",
+        "Call evidence_client.run(input)",
+        "Call claim_client.run(input)",
+        "Verify at least one score differs between clients"
+      ],
+      "verification": "Evidence detection is distinct from claim detection service"
+    },
+    {
+      "id": "TEST-013",
+      "requirement_id": "ED-018",
+      "description": "Validates presence of required dictionary keys",
+      "test_type": "structural_validation",
+      "passes": false,
+      "test_steps": [
+        "Create input missing 'sentence' key: [{'topic': 'Topic'}]",
+        "Verify error is raised",
+        "Create input missing 'topic' key: [{'sentence': 'Text'}]",
+        "Verify error is raised"
+      ],
+      "verification": "Missing required keys cause validation errors"
+    },
+    {
+      "id": "TEST-014",
+      "requirement_id": "ED-006",
+      "description": "Batch processing is transparent to user",
+      "test_type": "batch_transparency",
+      "passes": false,
+      "test_steps": [
+        "Create large input (e.g., 1000 pairs)",
+        "Call client.run(input) once",
+        "Verify single result list is returned (not multiple batches)",
+        "Verify result list length equals input length"
+      ],
+      "verification": "Internal batching is transparent; user receives single unified result"
+    },
+    {
+      "id": "TEST-015",
+      "requirement_id": "ED-004",
+      "description": "High scores indicate strong evidence confidence",
+      "test_type": "semantic_validation",
+      "passes": false,
+      "test_steps": [
+        "Create input with clear evidence: {'sentence': 'Studies show X causes Y with 95% confidence', 'topic': 'X causes Y'}",
+        "Create input with no evidence: {'sentence': 'The sky is blue', 'topic': 'X causes Y'}",
+        "Call client.run([strong_evidence, weak_evidence])",
+        "Verify score[0] (strong) > score[1] (weak)"
+      ],
+      "verification": "Scores reflect evidence strength (higher = stronger)"
+    },
+    {
+      "id": "TEST-016",
+      "requirement_id": "ED-002",
+      "description": "Sentence and topic are both used in scoring",
+      "test_type": "input_sensitivity",
+      "passes": false,
+      "test_steps": [
+        "Create input1: {'sentence': 'Text about cannabis health benefits', 'topic': 'Cannabis legalization'}",
+        "Create input2: {'sentence': 'Text about cannabis health benefits', 'topic': 'Unrelated topic'}",
+        "Call client.run([input1, input2])",
+        "Verify scores differ (topic affects scoring)"
+      ],
+      "verification": "Both sentence and topic influence score calculation"
+    },
+    {
+      "id": "TEST-017",
+      "requirement_id": "ED-012",
+      "description": "Service communication handles timeouts",
+      "test_type": "timeout_handling",
+      "passes": false,
+      "test_steps": [
+        "Configure client with very short timeout (if configurable)",
+        "Create valid input",
+        "Call client.run(input)",
+        "Verify timeout error is raised if service too slow",
+        "OR verify successful completion if service responds quickly"
+      ],
+      "verification": "Timeout mechanism exists and prevents indefinite hangs"
+    },
+    {
+      "id": "TEST-018",
+      "requirement_id": "ED-017",
+      "description": "Results aggregated correctly across internal batches",
+      "test_type": "batch_aggregation",
+      "passes": false,
+      "test_steps": [
+        "Create input with 3 distinct pairs: A, B, C",
+        "Call client.run([A, B, C])",
+        "Store results: [score_A, score_B, score_C]",
+        "Call client.run([A]) separately",
+        "Verify score matches score_A from batch call",
+        "Call client.run([B]) separately",
+        "Verify score matches score_B from batch call"
+      ],
+      "verification": "Batch aggregation produces same scores as individual calls"
+    }
+  ],
+  "notes": {
+    "test_design": "Tests verify BEHAVIOR requirements derived from diagrams and documentation. Tests do NOT assert vendor-specific values (URLs, timeout durations, error message text).",
+    "diagram_derived_tests": [
+      "TEST-002 (Processing Pipeline: Input → Validation → Transform → Results)",
+      "TEST-003, TEST-004 (Processing Pipeline: Validation checks empty fields)",
+      "TEST-006, TEST-014 (Processing Pipeline: BatchProcess component)",
+      "TEST-007, TEST-018 (Processing Pipeline: Order preservation through flow)",
+      "TEST-015 (Processing Pipeline: Results semantics)"
+    ],
+    "architecture_derived_tests": [
+      "TEST-001 (SDK Architecture: Factory → Client)",
+      "TEST-009 (SDK Architecture: AbstractClient provides authentication)",
+      "TEST-012 (SDK Architecture: Separate ClaimDetectionClient and EvidenceDetectionClient)"
+    ],
+    "immutability": "All tests start with passes=false. Only the 'passes' field should be updated during test execution. Test descriptions and steps are immutable."
+  }
+}

@@ -1,0 +1,133 @@
+SPEC REVIEWER REPORT
+====================
+Date: 2026-01-01
+Cards reviewed: 15
+Cards modified: 7
+Total invariants moved to legacy_notes: 8
+
+CHANGES BY CARD
+---------------
+
+ED-001: Evidence Detection Client Entry Point
+  MOVED: "MUST inherit from AbstractClient (directly or indirectly)"
+  REASON: Specific class name reference (AbstractClient)
+  REPLACEMENT: "MUST inherit from a base client class (directly or indirectly)"
+  ADDITIONAL LEGACY NOTE: "Reference inherits from AbstractClient class"
+
+ED-002: Input Validation - Empty String Detection
+  ADDED: "Error MUST indicate which input was invalid"
+  REASON: Generalized from specific error message format - this is a behavioral requirement
+  NOTE: Already had error message text in legacy_notes, enhanced invariant to capture behavior
+
+ED-003: Data Transformation - Dictionary to Pairs
+  NO CHANGES (all invariants are behavior-level)
+
+ED-004: Batch Processing Architecture
+  MOVED: "MUST call inherited run_in_batch method"
+  REASON: Specific method name reference (run_in_batch)
+  REPLACEMENT: "MUST call inherited batch processing method from base class"
+
+  MOVED: "MUST pass list_name parameter identifying the data type"
+  REASON: Specific parameter name (list_name)
+  REPLACEMENT: "MUST pass a parameter identifying the data type being processed"
+
+  ADDITIONAL LEGACY NOTES:
+    - "Reference uses method named 'run_in_batch'"
+    - "Reference uses parameter named 'list_name' with value 'sentence_topic_pairs'"
+
+ED-005: Score Output Format
+  NO CHANGES (all invariants are behavior-level)
+
+ED-006: Client Initialization with API Key
+  MOVED: "MUST accept apikey parameter in constructor"
+  REASON: Specific parameter name (apikey)
+  REPLACEMENT: "MUST accept authentication credential parameter in constructor"
+
+  MOVED: "MUST call AbstractClient.__init__ with apikey"
+  REASON: Specific class name and parameter name
+  REPLACEMENT: "MUST call base class constructor with authentication credential"
+
+  ADDITIONAL LEGACY NOTES:
+    - "Reference parameter name is 'apikey'"
+    - "Reference calls AbstractClient.__init__(self, apikey)"
+
+ED-007: Client Factory Pattern
+  ADDED LEGACY NOTE: "Reference factory class name is 'DebaterApi'"
+  REASON: Captures implementation detail about factory class name
+  NOTE: Invariants were already behavior-level
+
+ED-008: Error Handling for Empty Input Validation
+  NO CHANGES (all invariants are behavior-level)
+
+ED-009: Inheritance from AbstractClient
+  MOVED: "MUST inherit from AbstractClient (directly or indirectly)"
+  REASON: Specific base class name reference
+  REPLACEMENT: "MUST inherit from a base client class (directly or indirectly)"
+
+  MOVED: "MUST have access to batch processing via run_in_batch"
+  REASON: Specific method name reference
+  REPLACEMENT: "MUST have access to batch processing capabilities"
+
+  MOVED: "MUST have access to HTTP communication via do_run"
+  REASON: Specific method name reference
+  REPLACEMENT: "MUST have access to service communication capabilities"
+
+  ADDITIONAL LEGACY NOTES:
+    - "Reference base class is named 'AbstractClient'"
+    - "Reference inherited methods: run_in_batch, do_run, set_host, set_show_process"
+
+ED-010: Input-Output Order Preservation
+  NO CHANGES (all invariants are behavior-level)
+
+ED-011: Batch Processing with Timeout
+  MOVED: "MUST pass timeout parameter to batch processing"
+  REASON: This was already mostly behavior-level but could be clearer
+  REPLACEMENT: "MUST support configurable timeout for service requests"
+  NOTE: The invariant was rephrased to be more clearly behavior-focused
+
+ED-012: Performance Logging
+  NO CHANGES (all invariants are behavior-level)
+
+ED-013: Empty String Placeholder for Batch Processing
+  MOVED: "MUST replace empty strings in batch items before sending to service"
+  REASON: This is overly specific about mechanism
+  REPLACEMENT: "MUST handle empty strings in batch processing without breaking service communication"
+  NOTE: Generalized to focus on the requirement (handle empty strings) not the mechanism (replace with placeholder)
+
+ED-014: HTTP POST Communication with Service
+  MOVED: "MUST send JSON payload"
+  REASON: Specific payload format (JSON)
+  REPLACEMENT: "MUST send structured payload (e.g., JSON)"
+
+  MOVED: "MUST parse JSON response on success"
+  REASON: Specific response format (JSON)
+  REPLACEMENT: "MUST parse structured response on success"
+
+  ADDITIONAL LEGACY NOTES:
+    - "Reference sends JSON payload"
+    - "Reference expects JSON response"
+
+ED-015: Dictionary Keys Requirement
+  NO CHANGES (all invariants are behavior-level)
+
+SUMMARY
+-------
+The review identified 8 primary invariants that contained technology-specific implementation details:
+
+1. **Class/Method Names** (5 instances): AbstractClient, run_in_batch, do_run - these were generalized to "base client class," "batch processing method," and "service communication capabilities"
+
+2. **Parameter Names** (2 instances): apikey, list_name - generalized to "authentication credential parameter" and "parameter identifying data type"
+
+3. **Data Formats** (2 instances): JSON payload/response - generalized to "structured payload/response"
+
+4. **Mechanism Details** (1 instance): "replace empty strings" - generalized to "handle empty strings"
+
+All moved details were preserved in legacy_notes with clear references to source code locations. The invariants now describe WHAT must happen (behavior) without prescribing HOW it must happen (implementation).
+
+Key patterns found:
+- Most cards (8 of 15) had well-separated concerns already
+- Class/method naming was the most common tech-specific detail
+- Input/output shape requirements were consistently behavior-level
+- Error handling conditions were properly behavioral (focusing on WHEN errors occur, not the exact message text)
+
+The requirement cards are now technology-agnostic and ready for implementation in any language or framework while maintaining full traceability to the reference implementation.

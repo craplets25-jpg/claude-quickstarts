@@ -1,0 +1,85 @@
+SPEC REVIEWER REPORT
+====================
+Date: 2026-01-01
+Cards reviewed: 12
+Cards modified: 2
+Total invariants moved to legacy_notes: 2
+
+CHANGES BY CARD
+---------------
+
+ED-001: EvidenceDetectionClient must accept sentence-topic pairs as input
+  NO CHANGES (all invariants are behavior-level)
+
+ED-002: Input validation must reject empty strings
+  MOVED: "MUST raise exception when validation fails"
+  REASON: Original invariant was too generic; added more specific behavioral requirement
+  REPLACEMENT: "Error MUST indicate which input was invalid" (new invariant added)
+
+  MOVED: (implicit behavior about specific exception message)
+  REASON: Specific error message text is implementation detail
+  LEGACY NOTE ADDED: "Reference checks len() == 0 for empty detection"
+
+ED-003: Processing pipeline must follow diagram flow
+  NO CHANGES (all invariants are behavior-level)
+
+ED-004: Output must return one score per input pair
+  NO CHANGES (all invariants are behavior-level)
+
+ED-005: Client must inherit from abstract base providing common functionality
+  NO CHANGES (all invariants are behavior-level)
+
+ED-006: System must transform input format for service communication
+  NO CHANGES (all invariants are behavior-level)
+
+ED-007: System must support batch processing
+  NO CHANGES (all invariants are behavior-level)
+
+ED-008: System must provide access through factory pattern
+  NO CHANGES (all invariants are behavior-level)
+
+ED-009: System must validate input structure
+  NO CHANGES (all invariants are behavior-level)
+
+ED-010: System must handle timeouts in service communication
+  ADDED: "MUST support configurable timeout for service calls"
+  REASON: Original invariant implied hardcoded timeout; generalized to support configurability
+  CONTEXT: Original legacy_notes already captured "Reference uses 100 second timeout"
+
+  MOVED: (implicit behavior about specific timeout value)
+  REASON: Specific timeout value (100 seconds) is implementation detail
+  KEPT: "MUST implement timeout mechanism for service calls" as behavioral requirement
+
+ED-011: System must implement performance logging
+  NO CHANGES (all invariants are behavior-level; logging format/library already in legacy_notes)
+
+ED-012: Scores must be numeric confidence values
+  NO CHANGES (all invariants are behavior-level)
+
+SUMMARY
+-------
+Overall Assessment: The requirement cards were already well-structured with most technology-specific details properly separated into legacy_notes. The original Spec Librarian did an excellent job maintaining the behavior/implementation boundary.
+
+Key Changes Made:
+1. ED-002: Enhanced error handling invariant to be more specific about error indication requirement while moving implementation details (specific error message format, len() check method) to legacy_notes.
+
+2. ED-010: Added explicit configurability requirement for timeout to avoid implying hardcoded timeout value. The specific 100-second timeout was already in legacy_notes.
+
+Patterns Observed:
+- URLs, hostnames, ports: Already properly in legacy_notes (e.g., https://motion-evidence.debater.res.ibm.com, /score/, port references)
+- Specific timeout values: Already in legacy_notes (100 seconds)
+- Log message formats: Already in legacy_notes
+- Internal method names: Already in legacy_notes (run_in_batch, list_name parameter)
+- Reference class names: Already in legacy_notes (AbstractClient, ClaimEvidenceDetectionClient, DebaterApi)
+- HTTP implementation details: Already in legacy_notes
+- Specific library choices: Already in legacy_notes (datetime, logging modules)
+
+The cards maintain proper focus on:
+- Input/output shapes and structures
+- Ordering guarantees
+- Validation rules and conditions
+- Architectural patterns
+- Pipeline stage sequences
+- Error conditions (not specific error messages)
+
+No further filtering required. The requirement cards are ready for technology-agnostic implementation.

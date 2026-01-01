@@ -28,17 +28,22 @@ def get_coding_prompt() -> str:
     return load_prompt("coding_prompt")
 
 
+def get_reviewer_prompt() -> str:
+    """Load the Spec Reviewer prompt (tech-agnostic filter)."""
+    return load_prompt("spec_reviewer_prompt")
+
+
 def copy_spec_to_project(project_dir: Path) -> None:
     """Copy canonical artifact references into the project directory."""
-    # Copy the phase spec file
-    spec_source = PROMPTS_DIR / "phase_spec.txt"
-    spec_dest = project_dir / "phase_spec.txt"
-    if spec_source.exists() and not spec_dest.exists():
-        shutil.copy(spec_source, spec_dest)
-        print("Copied phase_spec.txt to project directory")
+    # Copy the phase constraint file
+    constraint_source = PROMPTS_DIR / "phase_constraint.txt"
+    constraint_dest = project_dir / "phase_constraint.txt"
+    if constraint_source.exists() and not constraint_dest.exists():
+        shutil.copy(constraint_source, constraint_dest)
+        print("Copied phase_constraint.txt to project directory")
 
     # Also copy the manifesto for reference
-    manifesto_source = Path(__file__).parent / "EXP_02_MANIFESTO.md"
+    manifesto_source = Path(__file__).parent / "docs" / "EXP_02_MANIFESTO.md"
     manifesto_dest = project_dir / "EXP_02_MANIFESTO.md"
     if manifesto_source.exists() and not manifesto_dest.exists():
         shutil.copy(manifesto_source, manifesto_dest)
