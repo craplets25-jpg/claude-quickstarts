@@ -49,17 +49,17 @@ When you find a diagram relevant to your capability:
 The canonical artifacts are organized as follows:
 
 **DeepWiki Documentation (SPLIT INTO SECTIONS)**:
-- Location: `../deep-wiki-spec-files/debater-early-access-program-sdk-Deepwiki-sections/`
+- Location: `../../deep-wiki-spec-files/debater-early-access-program-sdk-Deepwiki-sections/`
 - **Start here**: Read `INDEX.md` to see all 105 sections with previews
 - Each section is a separate file: `001_purpose-and-scope.md`, `055_architecture-overview.md`, etc.
 - Section files include metadata comments with source line numbers
 
 **Table of Contents**:
-- Location: `../deep-wiki-spec-files/TOC-debater-early-access-program-sdk-H2-H4.md`
+- Location: `../../deep-wiki-spec-files/TOC-debater-early-access-program-sdk-H2-H4.md`
 - Lists all major sections and subsections
 
 **Reference Implementation**:
-- Location: `../reference-files/debater_python_api/`
+- Location: `../../reference-files/debater_python_api/`
 - Contains: `api/clients/`, `examples/`, and response files
 
 ### 1A: Find the diagrams first
@@ -67,7 +67,7 @@ The canonical artifacts are organized as follows:
 **IMPORTANT: DeepWiki has been split into 105 sections for easier reading.**
 
 **Efficient workflow**:
-1. Read `../deep-wiki-spec-files/debater-early-access-program-sdk-Deepwiki-sections/INDEX.md`
+1. Read `../../deep-wiki-spec-files/debater-early-access-program-sdk-Deepwiki-sections/INDEX.md`
 2. Identify sections relevant to your capability (grep for keywords)
 3. Read complete sections (no token limits!)
 4. Extract Mermaid diagrams from relevant sections
@@ -88,8 +88,8 @@ Look for sections containing:
 
 ### 1B: Then read supporting text
 
-1) Read the TOC: `../deep-wiki-spec-files/TOC-debater-early-access-program-sdk-H2-H4.md`
-2) Inspect the debater reference tree: `../reference-files/debater_python_api/`
+1) Read the TOC: `../../deep-wiki-spec-files/TOC-debater-early-access-program-sdk-H2-H4.md`
+2) Inspect the debater reference tree: `../../reference-files/debater_python_api/`
    - Check `examples/` for example scripts
    - Check `api/clients/` for client implementations
 
@@ -117,9 +117,9 @@ PROOF:
   - Diagram 1: ___ (shows ___)
   - Diagram 2: ___ (shows ___)
   - Diagram 3: ___ (shows ___)
-- [D] Example script: `../reference-files/debater_python_api/examples/___`
-- [E] Response witness: `../reference-files/debater_python_api/examples/___`
-- [F] Client file: `../reference-files/debater_python_api/api/clients/___`
+- [D] Example script: `../../reference-files/debater_python_api/examples/___`
+- [E] Response witness: `../../reference-files/debater_python_api/examples/___`
+- [F] Client file: `../../reference-files/debater_python_api/api/clients/___`
 - [G] Boundary method: `ClassName.method_name()`
 ```
 
@@ -149,9 +149,9 @@ For each candidate requirement, answer these questions:
   "sources": {
     "diagram": "Section #58: `058_processing-pipeline.md` — shows Input→Validation→Transform→Batch→Results",
     "deepwiki": "Section #55: `055_architecture-overview.md` (original lines 2549-2609)",
-    "example": "../reference-files/debater_python_api/examples/evidence_detection_example.py:16",
-    "response": "../reference-files/debater_python_api/examples/evidence_detection_response.txt:1-16",
-    "client": "../reference-files/debater_python_api/api/clients/claim_and_evidence_detection_client.py:run (lines 32-36)"
+    "example": "../../reference-files/debater_python_api/examples/evidence_detection_example.py:16",
+    "response": "../../reference-files/debater_python_api/examples/evidence_detection_response.txt:1-16",
+    "client": "../../reference-files/debater_python_api/api/clients/claim_and_evidence_detection_client.py:run (lines 32-36)"
   },
   "input_shape": { ... },
   "output_shape": { ... },

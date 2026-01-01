@@ -18,6 +18,9 @@ python scripts/autonomous_agent_demo.py \
 
 **Arguments**:
 - `--project-dir`: Where to create the experiment run (required)
+  - Simple name: `my-run` → creates in `runs/my-run/`
+  - With runs/ prefix: `runs/my-run` → creates in `runs/my-run/`
+  - Absolute path: `/full/path/to/run` → uses as-is
 - `--max-iterations`: Maximum number of sessions (default: unlimited)
 - `--model`: Claude model to use (default: claude-sonnet-4-5)
 
@@ -32,17 +35,17 @@ python scripts/autonomous_agent_demo.py \
 
 **Example runs**:
 ```bash
-# Full MVP run (20 iterations, ~5-6 hours)
+# Full MVP run (20 iterations)
 python scripts/autonomous_agent_demo.py \
-  --project-dir runs/2026-01-01_mvp-full \
+  --project-dir 2026-01-01_mvp-full \
   --max-iterations 20
 
-# Quick verification (2 iterations, ~10 minutes)
+# Quick verification (2 iterations)
 python scripts/autonomous_agent_demo.py \
-  --project-dir runs/2026-01-01_quick-test \
+  --project-dir 2026-01-01_quick-test \
   --max-iterations 2
 
-# Unlimited (runs until all tests pass)
+# With runs/ prefix (equivalent to above)
 python scripts/autonomous_agent_demo.py \
   --project-dir runs/2026-01-01_complete-run
 ```
@@ -197,14 +200,16 @@ python scripts/split_large_docs.py ../deep-wiki-spec-files/debater-early-access-
 ```bash
 # From exp-02/experiment_02/ directory
 python scripts/autonomous_agent_demo.py \
-  --project-dir runs/$(date +%Y-%m-%d)_my-experiment \
+  --project-dir $(date +%Y-%m-%d)_my-experiment \
   --max-iterations 10
+
+# Creates: runs/2026-01-01_my-experiment/
 ```
 
 ### Monitoring in separate terminal:
 ```bash
 # Terminal 1: Run experiment
-python scripts/autonomous_agent_demo.py --project-dir runs/2026-01-01_mvp-full --max-iterations 20
+python scripts/autonomous_agent_demo.py --project-dir 2026-01-01_mvp-full --max-iterations 20
 
 # Terminal 2: Monitor
 python scripts/monitor.py runs/2026-01-01_mvp-full
@@ -214,6 +219,9 @@ tail -f runs/2026-01-01_mvp-full/logs/decisions.md
 
 # Terminal 4: Watch live log
 tail -f runs/2026-01-01_mvp-full/logs/live.log
+
+# Terminal 5: Watch agent thoughts (new!)
+tail -f runs/2026-01-01_mvp-full/logs/agent-thoughts.log
 ```
 
 ### Finding latest run:
@@ -244,6 +252,11 @@ Every run creates a `logs/` directory with:
 - Real-time activity log
 - Tool calls with status
 - Timestamps in HH:MM:SS format
+
+**agent-thoughts.log** (NEW!)
+- Agent narrative reasoning
+- "Now I'll..." style thoughts
+- Timestamped with proper formatting
 
 **experiment_log.jsonl**
 - JSON Lines format

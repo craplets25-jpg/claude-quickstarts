@@ -143,11 +143,21 @@ def main() -> None:
         print("(Azure Foundry mode)")
     print()
 
-    # Automatically place projects in generations/ directory
+    # Handle project directory paths
     project_dir = args.project_dir
-    if not str(project_dir).startswith("generations/"):
-        if not project_dir.is_absolute():
-            project_dir = Path("generations") / project_dir
+
+    # If absolute path, use as-is
+    if project_dir.is_absolute():
+        pass
+    # If relative path starting with "runs/", use as-is (new structure)
+    elif str(project_dir).startswith("runs/"):
+        pass
+    # If just a directory name, place in runs/ (new structure)
+    elif "/" not in str(project_dir):
+        project_dir = Path("runs") / project_dir
+    # Otherwise use as provided (for backwards compatibility)
+    else:
+        pass
 
     # Run the agent
     try:
