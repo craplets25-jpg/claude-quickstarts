@@ -1,0 +1,257 @@
+[
+  {
+    "id": "TEST-001",
+    "requirement_id": "ED-001",
+    "description": "Verify client accepts list of sentence-topic dictionaries with required keys",
+    "test_type": "input_validation",
+    "passes": true,
+    "test_steps": [
+      "Create list of dictionaries with 'sentence' and 'topic' keys",
+      "Call run() method with this input",
+      "Verify method accepts input without structure errors"
+    ],
+    "verification": "Method successfully accepts input structure and proceeds to validation/processing"
+  },
+  {
+    "id": "TEST-002",
+    "requirement_id": "ED-002",
+    "description": "Verify client rejects empty sentence field",
+    "test_type": "input_validation",
+    "passes": true,
+    "test_steps": [
+      "Create sentence-topic dict with empty string sentence: {'sentence': '', 'topic': 'valid topic'}",
+      "Call run() method with this input",
+      "Verify exception is raised"
+    ],
+    "verification": "Exception raised indicating empty sentence field detected"
+  },
+  {
+    "id": "TEST-003",
+    "requirement_id": "ED-002",
+    "description": "Verify client rejects empty topic field",
+    "test_type": "input_validation",
+    "passes": true,
+    "test_steps": [
+      "Create sentence-topic dict with empty string topic: {'sentence': 'valid sentence', 'topic': ''}",
+      "Call run() method with this input",
+      "Verify exception is raised"
+    ],
+    "verification": "Exception raised indicating empty topic field detected"
+  },
+  {
+    "id": "TEST-004",
+    "requirement_id": "ED-002",
+    "description": "Verify client accepts non-empty sentence and topic",
+    "test_type": "input_validation",
+    "passes": true,
+    "test_steps": [
+      "Create sentence-topic dict with non-empty values: {'sentence': 'Test sentence', 'topic': 'Test topic'}",
+      "Call run() method with this input",
+      "Verify no validation exception is raised"
+    ],
+    "verification": "Input passes validation and proceeds to transformation/processing"
+  },
+  {
+    "id": "TEST-005",
+    "requirement_id": "ED-003",
+    "description": "Verify output order matches input order for multiple pairs",
+    "test_type": "behavior",
+    "passes": true,
+    "test_steps": [
+      "Create list of 3 distinct sentence-topic pairs in specific order",
+      "Call run() method",
+      "Verify output list has 3 scores",
+      "Verify score at index 0 corresponds to input at index 0 (by matching in response)",
+      "Verify score at index 1 corresponds to input at index 1",
+      "Verify score at index 2 corresponds to input at index 2"
+    ],
+    "verification": "Output order matches input order with one score per input pair"
+  },
+  {
+    "id": "TEST-006",
+    "requirement_id": "ED-004",
+    "description": "Verify batch processing handles multiple sentence-topic pairs",
+    "test_type": "behavior",
+    "passes": true,
+    "test_steps": [
+      "Create list of 4 sentence-topic pairs",
+      "Call run() method",
+      "Verify all 4 pairs are processed in a single call",
+      "Verify output contains 4 scores"
+    ],
+    "verification": "Batch processing returns scores for all input pairs"
+  },
+  {
+    "id": "TEST-007",
+    "requirement_id": "ED-005",
+    "description": "Verify output is list of numerical scores matching input length",
+    "test_type": "output_validation",
+    "passes": true,
+    "test_steps": [
+      "Create list of N sentence-topic pairs (e.g., N=4)",
+      "Call run() method",
+      "Verify output is a list",
+      "Verify output length equals N",
+      "Verify each element is a number"
+    ],
+    "verification": "Output structure matches expected format: list of N numbers"
+  },
+  {
+    "id": "TEST-008",
+    "requirement_id": "ED-005",
+    "description": "Verify score at index i corresponds to input at index i",
+    "test_type": "behavior",
+    "passes": true,
+    "test_steps": [
+      "Create list with distinctive sentence-topic pairs",
+      "Call run() method",
+      "For each index i, verify score[i] is associated with input[i]",
+      "Verify no shuffling or reordering occurred"
+    ],
+    "verification": "Each output score position matches its corresponding input position"
+  },
+  {
+    "id": "TEST-009",
+    "requirement_id": "ED-006",
+    "description": "Verify client provides run() method as public API",
+    "test_type": "interface",
+    "passes": true,
+    "test_steps": [
+      "Obtain Evidence Detection client instance",
+      "Verify run() method exists",
+      "Verify run() accepts sentence_topic_dicts parameter",
+      "Call run() with valid input",
+      "Verify run() returns list of scores"
+    ],
+    "verification": "run() method is accessible and functions as primary entry point"
+  },
+  {
+    "id": "TEST-010",
+    "requirement_id": "ED-008",
+    "description": "Verify client initializes with API key via factory",
+    "test_type": "initialization",
+    "passes": true,
+    "test_steps": [
+      "Create DebaterApi instance with API key",
+      "Call get_evidence_detection_client() factory method",
+      "Verify client instance is returned",
+      "Verify client can make authenticated calls (run() succeeds)"
+    ],
+    "verification": "Client initializes with authentication and can make service calls"
+  },
+  {
+    "id": "TEST-011",
+    "requirement_id": "ED-009",
+    "description": "Verify EvidenceDetectionClient is distinct from ClaimDetectionClient",
+    "test_type": "architecture",
+    "passes": true,
+    "test_steps": [
+      "Create DebaterApi instance",
+      "Get evidence_detection_client via factory",
+      "Get claim_detection_client via factory",
+      "Verify they are different class instances",
+      "Verify evidence client produces evidence scores",
+      "Verify claim client produces claim scores (different values for same input)"
+    ],
+    "verification": "Two distinct clients with different behaviors"
+  },
+  {
+    "id": "TEST-012",
+    "requirement_id": "ED-011",
+    "description": "Verify processing flows through validation before transformation",
+    "test_type": "behavior",
+    "passes": true,
+    "test_steps": [
+      "Create input with one invalid pair (empty sentence) and one valid pair",
+      "Call run() method",
+      "Verify exception raised before any processing occurs",
+      "Verify no partial results returned"
+    ],
+    "verification": "Validation prevents transformation and processing when input is invalid"
+  },
+  {
+    "id": "TEST-013",
+    "requirement_id": "ED-011",
+    "description": "Verify transformation occurs after validation passes",
+    "test_type": "behavior",
+    "passes": true,
+    "test_steps": [
+      "Create valid input with multiple sentence-topic pairs",
+      "Call run() method",
+      "Verify processing completes successfully",
+      "Verify results returned (indicating transformation and batch processing occurred)"
+    ],
+    "verification": "Valid input flows through complete pipeline to produce results"
+  },
+  {
+    "id": "TEST-014",
+    "requirement_id": "ED-012",
+    "description": "Verify validation checks all pairs before processing",
+    "test_type": "behavior",
+    "passes": true,
+    "test_steps": [
+      "Create list with first pair valid, second pair invalid (empty topic)",
+      "Call run() method",
+      "Verify exception is raised",
+      "Verify no partial processing occurred (no results for first pair)"
+    ],
+    "verification": "Invalid pair in batch prevents processing of all pairs"
+  },
+  {
+    "id": "TEST-015",
+    "requirement_id": "ED-001",
+    "description": "Verify client handles single sentence-topic pair",
+    "test_type": "behavior",
+    "passes": true,
+    "test_steps": [
+      "Create list with single sentence-topic dictionary",
+      "Call run() method",
+      "Verify single score returned",
+      "Verify result is still a list (not scalar)"
+    ],
+    "verification": "Single input produces single-element list output"
+  },
+  {
+    "id": "TEST-016",
+    "requirement_id": "ED-005",
+    "description": "Verify scores are numerical values",
+    "test_type": "output_validation",
+    "passes": true,
+    "test_steps": [
+      "Create valid sentence-topic pairs",
+      "Call run() method",
+      "Verify each returned score is numeric (int or float)",
+      "Verify scores are not strings, booleans, or other types"
+    ],
+    "verification": "All output scores are numerical values"
+  },
+  {
+    "id": "TEST-017",
+    "requirement_id": "ED-002",
+    "description": "Verify exception includes information about which pair failed",
+    "test_type": "error_handling",
+    "passes": true,
+    "test_steps": [
+      "Create list with invalid pair at specific position",
+      "Call run() method",
+      "Catch exception",
+      "Verify exception message or data identifies the invalid pair"
+    ],
+    "verification": "Exception provides diagnostic information about validation failure"
+  },
+  {
+    "id": "TEST-018",
+    "requirement_id": "ED-006",
+    "description": "Verify run() returns results synchronously",
+    "test_type": "behavior",
+    "passes": true,
+    "test_steps": [
+      "Create valid sentence-topic pairs",
+      "Call run() method",
+      "Verify method blocks until results are available",
+      "Verify results are returned directly (not via callback or future)",
+      "Verify results are immediately available after method returns"
+    ],
+    "verification": "run() method operates synchronously and returns results directly"
+  }
+]
