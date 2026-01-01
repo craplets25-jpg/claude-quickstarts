@@ -19,7 +19,7 @@ from typing import Optional
 from claude_code_sdk import ClaudeSDKClient
 
 from client import create_client
-from progress import print_session_header, print_progress_summary
+from progress import print_session_header, print_progress_summary, count_passing_tests
 from prompts import (
     get_initializer_prompt,
     get_reviewer_prompt,
@@ -273,13 +273,13 @@ async def run_autonomous_agent(
 
         # Check if all tests are passing (early stopping condition)
         if session_type == "CODING AGENT" and iteration > 3:
-            progress = get_progress(project_dir)
-            if progress['total'] > 0 and progress['passing'] == progress['total']:
-                print(f"\n✅ All tests passing ({progress['passing']}/{progress['total']})!")
+            passing, total = count_passing_tests(project_dir)
+            if total > 0 and passing == total:
+                print(f"\n✅ All tests passing ({passing}/{total})!")
                 print("Implementation complete. Stopping experiment.")
                 logger.log_info("Early stop: All tests passing", {
-                    "passing": progress['passing'],
-                    "total": progress['total'],
+                    "passing": passing,
+                    "total": total,
                     "percentage": 100.0
                 })
                 logger.end_session(status="completed", summary="All tests passing - implementation complete")
