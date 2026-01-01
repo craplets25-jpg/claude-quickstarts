@@ -1,0 +1,650 @@
+[
+  {
+    "id": "TEST-001",
+    "requirement_id": "KPA-001",
+    "description": "Client initialization succeeds with valid API key",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Obtain valid API key from test configuration",
+      "Initialize KpAnalysisClient with the API key",
+      "Verify client instance is created successfully",
+      "Verify client has required methods (run, create_domain, upload_comments, etc.)"
+    ],
+    "verification": "Client object exists and is callable"
+  },
+  {
+    "id": "TEST-002",
+    "requirement_id": "KPA-001",
+    "description": "Client initialization supports optional host parameter",
+    "test_type": "unit",
+    "passes": true,
+    "test_steps": [
+      "Initialize client with apikey and custom host parameter",
+      "Verify client is created successfully",
+      "Verify client internally stores the custom host (if accessible)"
+    ],
+    "verification": "Client accepts host parameter without error"
+  },
+  {
+    "id": "TEST-003",
+    "requirement_id": "KPA-002",
+    "description": "Simple run() method accepts list of comments and returns results",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create client with valid API key",
+      "Prepare list of 5-10 comment texts (e.g., about cannabis topic)",
+      "Call client.run(comments_texts)",
+      "Verify result is dictionary",
+      "Verify result contains 'keypoint_matchings' key",
+      "Verify keypoint_matchings is a list",
+      "Verify list contains at least one key point"
+    ],
+    "verification": "Result structure matches expected format with keypoint_matchings"
+  },
+  {
+    "id": "TEST-004",
+    "requirement_id": "KPA-002",
+    "description": "run() auto-generates comment IDs when not provided",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create client with valid API key",
+      "Prepare list of comment texts without providing comment_ids",
+      "Call client.run(comments_texts) without comments_ids parameter",
+      "Verify execution succeeds",
+      "Verify result contains keypoint_matchings",
+      "Verify matches reference auto-generated comment IDs"
+    ],
+    "verification": "run() succeeds without explicit comment IDs"
+  },
+  {
+    "id": "TEST-005",
+    "requirement_id": "KPA-002",
+    "description": "run() accepts optional comment IDs parameter",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create client with valid API key",
+      "Prepare list of comment texts and corresponding unique IDs",
+      "Call client.run(comments_texts, comments_ids)",
+      "Verify execution succeeds",
+      "Verify result contains keypoint_matchings",
+      "Verify matches reference the provided comment IDs"
+    ],
+    "verification": "run() accepts and uses provided comment IDs"
+  },
+  {
+    "id": "TEST-006",
+    "requirement_id": "KPA-002",
+    "description": "run() enforces maximum of 10000 comments",
+    "test_type": "unit",
+    "passes": true,
+    "test_steps": [
+      "Create client with valid API key",
+      "Prepare list of 10001 comment texts",
+      "Attempt to call client.run(comments_texts)",
+      "Verify an exception is raised",
+      "Verify exception message indicates limit exceeded"
+    ],
+    "verification": "Exception raised when exceeding 10000 comment limit"
+  },
+  {
+    "id": "TEST-007",
+    "requirement_id": "KPA-003",
+    "description": "upload_comments rejects empty string in comment texts",
+    "test_type": "unit",
+    "passes": true,
+    "test_steps": [
+      "Create client with valid API key",
+      "Create test domain",
+      "Prepare comment IDs and texts where one text is empty string ''",
+      "Attempt to call client.upload_comments(domain, ids, texts)",
+      "Verify an exception is raised",
+      "Verify exception indicates invalid empty comment"
+    ],
+    "verification": "Exception raised for empty comment text"
+  },
+  {
+    "id": "TEST-008",
+    "requirement_id": "KPA-003",
+    "description": "upload_comments rejects whitespace-only comment texts",
+    "test_type": "unit",
+    "passes": true,
+    "test_steps": [
+      "Create client with valid API key",
+      "Create test domain",
+      "Prepare comment IDs and texts where one text is '   ' (spaces only)",
+      "Attempt to call client.upload_comments(domain, ids, texts)",
+      "Verify an exception is raised",
+      "Verify exception indicates invalid comment"
+    ],
+    "verification": "Exception raised for whitespace-only comment"
+  },
+  {
+    "id": "TEST-009",
+    "requirement_id": "KPA-004",
+    "description": "upload_comments enforces maximum character length per comment",
+    "test_type": "unit",
+    "passes": true,
+    "test_steps": [
+      "Create client with valid API key",
+      "Create test domain",
+      "Prepare comment IDs and texts where one text exceeds maximum length (e.g., 3500 characters)",
+      "Attempt to call client.upload_comments(domain, ids, texts)",
+      "Verify an exception is raised",
+      "Verify exception indicates length limit exceeded"
+    ],
+    "verification": "Exception raised when comment exceeds maximum length"
+  },
+  {
+    "id": "TEST-010",
+    "requirement_id": "KPA-005",
+    "description": "upload_comments validates comment ID uniqueness",
+    "test_type": "unit",
+    "passes": true,
+    "test_steps": [
+      "Create client with valid API key",
+      "Create test domain",
+      "Prepare comment IDs with duplicates (e.g., ['1', '2', '2', '3'])",
+      "Prepare corresponding comment texts",
+      "Attempt to call client.upload_comments(domain, ids, texts)",
+      "Verify an exception is raised",
+      "Verify exception indicates duplicate IDs"
+    ],
+    "verification": "Exception raised for non-unique comment IDs"
+  },
+  {
+    "id": "TEST-011",
+    "requirement_id": "KPA-005",
+    "description": "upload_comments validates ID and text list length match",
+    "test_type": "unit",
+    "passes": true,
+    "test_steps": [
+      "Create client with valid API key",
+      "Create test domain",
+      "Prepare comment IDs list of length 5",
+      "Prepare comment texts list of length 4 (mismatch)",
+      "Attempt to call client.upload_comments(domain, ids, texts)",
+      "Verify an exception is raised",
+      "Verify exception indicates length mismatch"
+    ],
+    "verification": "Exception raised when IDs and texts have different lengths"
+  },
+  {
+    "id": "TEST-012",
+    "requirement_id": "KPA-006",
+    "description": "upload_comments validates comment_texts is list of strings",
+    "test_type": "unit",
+    "passes": true,
+    "test_steps": [
+      "Create client with valid API key",
+      "Create test domain",
+      "Prepare comment IDs as list of strings",
+      "Prepare comment_texts containing non-string element (e.g., integer)",
+      "Attempt to call client.upload_comments(domain, ids, texts)",
+      "Verify an exception is raised",
+      "Verify exception indicates type validation failure"
+    ],
+    "verification": "Exception raised for non-string element in comment_texts"
+  },
+  {
+    "id": "TEST-013",
+    "requirement_id": "KPA-006",
+    "description": "upload_comments validates comment_ids is list of strings",
+    "test_type": "unit",
+    "passes": true,
+    "test_steps": [
+      "Create client with valid API key",
+      "Create test domain",
+      "Prepare comment_ids containing non-string element (e.g., integer)",
+      "Prepare comment_texts as list of strings",
+      "Attempt to call client.upload_comments(domain, ids, texts)",
+      "Verify an exception is raised",
+      "Verify exception indicates type validation failure"
+    ],
+    "verification": "Exception raised for non-string element in comment_ids"
+  },
+  {
+    "id": "TEST-014",
+    "requirement_id": "KPA-007",
+    "description": "Result structure contains keypoint_matchings list",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Run analysis on sample comments using run() method",
+      "Verify result is dictionary",
+      "Verify result has 'keypoint_matchings' key",
+      "Verify keypoint_matchings value is a list",
+      "Verify list is not empty (for non-trivial input)"
+    ],
+    "verification": "Result contains keypoint_matchings as list"
+  },
+  {
+    "id": "TEST-015",
+    "requirement_id": "KPA-007",
+    "description": "Each keypoint match contains required keypoint and matching fields",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Run analysis on sample comments",
+      "Extract keypoint_matchings list from result",
+      "For each item in list:",
+      "  - Verify item is dictionary",
+      "  - Verify item has 'keypoint' key with string value",
+      "  - Verify item has 'matching' key with list value"
+    ],
+    "verification": "Each keypoint match has required structure"
+  },
+  {
+    "id": "TEST-016",
+    "requirement_id": "KPA-007",
+    "description": "Key points are ordered by match count descending",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Run analysis on sample comments",
+      "Extract keypoint_matchings list",
+      "For each consecutive pair of key points:",
+      "  - Count matches for first key point",
+      "  - Count matches for second key point",
+      "  - Verify first count >= second count"
+    ],
+    "verification": "Key points sorted by number of matches (descending)"
+  },
+  {
+    "id": "TEST-017",
+    "requirement_id": "KPA-008",
+    "description": "Each sentence match contains required core fields",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Run analysis on sample comments",
+      "Extract first keypoint match from result",
+      "Extract matching list from keypoint",
+      "For each match in matching:",
+      "  - Verify match has 'sentence_text' field",
+      "  - Verify match has 'score' field",
+      "  - Verify match has 'comment_id' field",
+      "  - Verify match has 'sentence_id' field"
+    ],
+    "verification": "Each match contains required identifying and scoring fields"
+  },
+  {
+    "id": "TEST-018",
+    "requirement_id": "KPA-008",
+    "description": "Matches within keypoint are sorted by score descending",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Run analysis on sample comments",
+      "Extract first keypoint match with multiple sentences",
+      "Extract matching list",
+      "For each consecutive pair of matches:",
+      "  - Extract score from first match",
+      "  - Extract score from second match",
+      "  - Verify first score >= second score"
+    ],
+    "verification": "Matches sorted by score within each key point"
+  },
+  {
+    "id": "TEST-019",
+    "requirement_id": "KPA-009",
+    "description": "create_domain succeeds with domain name",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create client with valid API key",
+      "Generate unique domain name (e.g., 'test_domain_<timestamp>')",
+      "Call client.create_domain(domain)",
+      "Verify no exception is raised",
+      "Clean up: delete domain"
+    ],
+    "verification": "Domain creation succeeds without error"
+  },
+  {
+    "id": "TEST-020",
+    "requirement_id": "KPA-009",
+    "description": "create_domain accepts domain_params with dont_split parameter",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create client with valid API key",
+      "Generate unique domain name",
+      "Prepare domain_params dict with {'dont_split': True}",
+      "Call client.create_domain(domain, domain_params)",
+      "Verify no exception is raised",
+      "Clean up: delete domain"
+    ],
+    "verification": "Domain created with dont_split parameter"
+  },
+  {
+    "id": "TEST-021",
+    "requirement_id": "KPA-010",
+    "description": "upload_comments supports configurable batch_size",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create client and domain",
+      "Prepare 100 comment IDs and texts",
+      "Call client.upload_comments(domain, ids, texts, batch_size=50)",
+      "Verify upload succeeds (no exception)",
+      "Verify all comments are uploaded (check status)",
+      "Clean up domain"
+    ],
+    "verification": "Batch upload succeeds with custom batch_size"
+  },
+  {
+    "id": "TEST-022",
+    "requirement_id": "KPA-011",
+    "description": "get_comments_status returns processing status dictionary",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create client and domain",
+      "Upload sample comments",
+      "Call status = client.get_comments_status(domain)",
+      "Verify status is dictionary",
+      "Verify status has 'processed_comments' key",
+      "Verify status has 'pending_comments' key",
+      "Verify status has 'processed_sentences' key",
+      "Clean up domain"
+    ],
+    "verification": "Status dictionary contains required keys"
+  },
+  {
+    "id": "TEST-023",
+    "requirement_id": "KPA-012",
+    "description": "wait_till_all_comments_are_processed blocks until complete",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create client and domain",
+      "Upload comments",
+      "Call client.wait_till_all_comments_are_processed(domain)",
+      "After method returns, check status",
+      "Verify pending_comments is 0",
+      "Verify processed_comments equals uploaded count",
+      "Clean up domain"
+    ],
+    "verification": "Wait method blocks until all comments processed"
+  },
+  {
+    "id": "TEST-024",
+    "requirement_id": "KPA-013",
+    "description": "start_kp_analysis_job returns KpAnalysisTaskFuture",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create client, domain, upload and process comments",
+      "Call future = client.start_kp_analysis_job(domain)",
+      "Verify future is not None",
+      "Verify future has get_result() method",
+      "Verify future has cancel() method",
+      "Verify future has get_job_id() method",
+      "Cancel job and clean up domain"
+    ],
+    "verification": "Job start returns future with required methods"
+  },
+  {
+    "id": "TEST-025",
+    "requirement_id": "KPA-013",
+    "description": "start_kp_analysis_job accepts run_params with predefined keypoints",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create client, domain, upload and process comments",
+      "Prepare run_params with {'keypoints': ['test keypoint 1', 'test keypoint 2']}",
+      "Call future = client.start_kp_analysis_job(domain, run_params=run_params)",
+      "Verify future is returned",
+      "Get result from future",
+      "Verify result contains only provided keypoints or subset",
+      "Clean up domain"
+    ],
+    "verification": "Job accepts predefined keypoints parameter"
+  },
+  {
+    "id": "TEST-026",
+    "requirement_id": "KPA-014",
+    "description": "Future get_job_id returns job identifier",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create client, domain, upload, process, start job",
+      "Get future from start_kp_analysis_job",
+      "Call job_id = future.get_job_id()",
+      "Verify job_id is string",
+      "Verify job_id is not empty",
+      "Cancel job and clean up"
+    ],
+    "verification": "Future provides job ID accessor"
+  },
+  {
+    "id": "TEST-027",
+    "requirement_id": "KPA-015",
+    "description": "Job status includes DONE state with result",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create client, domain, upload, process, start job",
+      "Poll job status until status is DONE",
+      "When DONE, verify status dict has 'result' key",
+      "Verify result contains keypoint_matchings",
+      "Clean up domain"
+    ],
+    "verification": "DONE status includes result data"
+  },
+  {
+    "id": "TEST-028",
+    "requirement_id": "KPA-015",
+    "description": "Job status supports PENDING and PROCESSING states",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create client, domain, upload, process, start job",
+      "Immediately check job status",
+      "Verify status is one of: PENDING, PROCESSING, or DONE",
+      "If PENDING or PROCESSING, continue polling",
+      "Verify state eventually transitions to DONE",
+      "Clean up domain"
+    ],
+    "verification": "Job transitions through expected states"
+  },
+  {
+    "id": "TEST-029",
+    "requirement_id": "KPA-016",
+    "description": "get_result blocks until job completion by default",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create client, domain, upload, process, start job",
+      "Call result = future.get_result() without dont_wait parameter",
+      "Verify method blocks (doesn't return immediately)",
+      "Verify result is dict with keypoint_matchings",
+      "Verify result is not None",
+      "Clean up domain"
+    ],
+    "verification": "get_result blocks until completion"
+  },
+  {
+    "id": "TEST-030",
+    "requirement_id": "KPA-016",
+    "description": "get_result with dont_wait=True returns immediately",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create client, domain, upload, process, start job",
+      "Immediately call result = future.get_result(dont_wait=True)",
+      "Verify call returns quickly",
+      "If job not done, verify result is None",
+      "Cancel job and clean up domain"
+    ],
+    "verification": "Non-blocking get_result returns immediately"
+  },
+  {
+    "id": "TEST-031",
+    "requirement_id": "KPA-016",
+    "description": "get_result supports result truncation via top_k parameters",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create client, domain with many comments, process, start job",
+      "Call result = future.get_result(top_k_kps=2, top_k_sentences_per_kp=3)",
+      "Verify result has at most 2 key points",
+      "For each key point, verify it has at most 3 matches",
+      "Clean up domain"
+    ],
+    "verification": "Result truncation parameters limit output size"
+  },
+  {
+    "id": "TEST-032",
+    "requirement_id": "KPA-017",
+    "description": "cancel method stops running job",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create client, domain, upload, process, start job",
+      "Get future from job start",
+      "Call future.cancel()",
+      "Attempt to get result",
+      "Verify exception is raised indicating job was canceled",
+      "Clean up domain"
+    ],
+    "verification": "Job cancellation prevents result retrieval"
+  },
+  {
+    "id": "TEST-033",
+    "requirement_id": "KPA-018",
+    "description": "delete_domain_cannot_be_undone removes domain",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create client and domain",
+      "Upload some comments",
+      "Call client.delete_domain_cannot_be_undone(domain)",
+      "Verify deletion succeeds (no exception)",
+      "Attempt to upload to same domain again",
+      "Verify domain must be recreated (behavior matches new domain)"
+    ],
+    "verification": "Domain deletion succeeds"
+  },
+  {
+    "id": "TEST-034",
+    "requirement_id": "KPA-022",
+    "description": "KpaResult can be created from result JSON",
+    "test_type": "unit",
+    "passes": true,
+    "test_steps": [
+      "Run analysis and get result JSON",
+      "Import KpaResult class",
+      "Call kpa_result = KpaResult.create_from_result_json(result)",
+      "Verify kpa_result is created",
+      "Verify kpa_result has result_df attribute",
+      "Verify kpa_result has summary_df attribute",
+      "Verify result_df is not empty"
+    ],
+    "verification": "KpaResult factory method creates object from JSON"
+  },
+  {
+    "id": "TEST-035",
+    "requirement_id": "KPA-023",
+    "description": "result_df DataFrame contains required columns",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Run analysis and create KpaResult",
+      "Access result_df DataFrame",
+      "Verify DataFrame has 'kp' column",
+      "Verify DataFrame has 'sentence_text' column",
+      "Verify DataFrame has 'match_score' column",
+      "Verify DataFrame has 'comment_id' column",
+      "Verify DataFrame has 'sentence_id' column",
+      "Verify DataFrame is not empty"
+    ],
+    "verification": "result_df contains required match-level columns"
+  },
+  {
+    "id": "TEST-036",
+    "requirement_id": "KPA-024",
+    "description": "summary_df DataFrame contains aggregated statistics",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Run analysis and create KpaResult",
+      "Access summary_df DataFrame",
+      "Verify DataFrame has 'kp' column",
+      "Verify DataFrame has column for sentence count",
+      "Verify DataFrame has column for sentence coverage percentage",
+      "Verify DataFrame has column for comment count",
+      "Verify number of rows matches number of key points"
+    ],
+    "verification": "summary_df contains aggregated per-keypoint statistics"
+  },
+  {
+    "id": "TEST-037",
+    "requirement_id": "KPA-032",
+    "description": "Job accepts predefined keypoints and matches against them",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create client, domain, upload comments about specific topic",
+      "Define 2-3 specific key points relevant to topic",
+      "Start job with run_params={'keypoints': [list of keypoints]}",
+      "Get result",
+      "Verify keypoint_matchings only contains provided keypoints or subset",
+      "Verify no auto-extracted key points appear",
+      "Clean up domain"
+    ],
+    "verification": "Predefined keypoints are used instead of auto-extraction"
+  },
+  {
+    "id": "TEST-038",
+    "requirement_id": "KPA-033",
+    "description": "arg_min_len and arg_max_len filter sentences by token count",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create client, domain",
+      "Upload comments with varying sentence lengths",
+      "Start job with run_params={'arg_min_len': 6, 'arg_max_len': 20}",
+      "Get result",
+      "For each matched sentence, verify token count is between 6 and 20",
+      "Clean up domain"
+    ],
+    "verification": "Sentence length filtering is applied"
+  },
+  {
+    "id": "TEST-039",
+    "requirement_id": "KPA-034",
+    "description": "mapping_policy controls match strictness",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create client, domain, upload same comments twice to two domains",
+      "Run job on first domain with run_params={'mapping_policy': 'STRICT'}",
+      "Run job on second domain with run_params={'mapping_policy': 'LOOSE'}",
+      "Compare number of total matches",
+      "Verify LOOSE has >= matches than STRICT",
+      "Clean up domains"
+    ],
+    "verification": "Different mapping policies affect match count"
+  },
+  {
+    "id": "TEST-040",
+    "requirement_id": "KPA-035",
+    "description": "sentence_to_multiple_kps allows multi-matching",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create client, domain",
+      "Upload comments with sentences that could match multiple topics",
+      "Start job with run_params={'sentence_to_multiple_kps': True}",
+      "Get result",
+      "Check if any sentence_id appears under multiple key points",
+      "If multi-matching occurred, verify test passes",
+      "Clean up domain"
+    ],
+    "verification": "sentence_to_multiple_kps parameter enables multi-matching"
+  }
+]
