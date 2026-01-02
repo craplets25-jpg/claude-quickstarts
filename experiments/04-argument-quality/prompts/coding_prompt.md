@@ -54,7 +54,9 @@ Read these files from the current directory:
 
 ---
 
-### Step 2 — Select ONE test
+### Step 2 — Select EXACTLY ONE test
+
+**CRITICAL: Work on ONE test at a time. Do not implement multiple tests in one iteration.**
 
 **Test Selection Strategy:**
 
@@ -134,20 +136,18 @@ Progress Update:
 
 ---
 
-### Step 6 — Update ALL Passing Tests in feature_list.json
+### Step 6 — Update ONLY the Target Test in feature_list.json
 
-**CRITICAL: You MUST update ALL passing tests, not just the target test.**
+**Mark ONLY the target test as passing (the one test you just implemented):**
 
-1. **Identify all tests with "passes": true in test results**
-2. **Update feature_list.json for EVERY passing test:**
-   - Change "passes": false → "passes": true
-   - This is REQUIRED, not optional
-3. **Count and verify:**
-   - Count how many tests you updated
-   - Verify count matches your test results from Step 5
+```json
+{
+  "id": "TEST-001",
+  "passes": true  // ← Change ONLY this test
+}
+```
 
-**Why this is critical:**
-If you only mark the target test, the next session will waste time re-implementing tests that already work.
+**Do NOT mark multiple tests at once. Update only the single test you implemented in this iteration.**
 
 **Verification Checklist:**
 - [ ] Ran full test suite (not just target test)
@@ -165,26 +165,23 @@ If you only mark the target test, the next session will waste time re-implementi
 
 ---
 
-### Step 6b — Commit Progress to Git
+### Step 6b — Commit After EACH Test (MANDATORY)
 
-**IMPORTANT: Commit your changes to the isolated git repository.**
-
-Each experiment run has its own git repository in the current directory.
-Commit after implementing each test or group of related tests.
+**IMMEDIATELY after marking ONE test as passing in feature_list.json:**
 
 ```bash
-# Check what changed
-git status
+# Add your changes (implementation file + feature_list.json)
+git add *.py feature_list.json
 
-# Add your changes
-git add *.py *.json *.txt *.md
+# Commit with test count
+git commit -m "feat: implement TEST-001 - 1/15 tests passing"
+```
 
-# Commit with descriptive message
-git commit -m "Implement TEST-XXX: <description>
+**DO NOT proceed to the next test until you commit.**
 
-- Updated <file>.py with <changes>
-- X/Y tests now passing
-- <any notable decisions or tradeoffs>"
+**DO NOT batch multiple tests before committing.**
+
+Each test must have its own dedicated commit. This is REQUIRED, not optional.
 
 # Verify commit
 git log --oneline -3
@@ -195,6 +192,18 @@ git log --oneline -3
 - Easy rollback if something breaks
 - Clear history of what changed when
 - Each run has isolated version history
+
+---
+
+### Step 6c — Run Full Suite (Verification Only)
+
+**After committing, run the full test suite to verify nothing broke:**
+
+```bash
+pytest test_*.py -v
+```
+
+This is for verification only. If additional tests pass as side effects, that's fine, but don't go back and re-implement them. Continue to the next failing test.
 
 ---
 
@@ -230,7 +239,9 @@ Next Steps:
 
 ---
 
-### Step 8 — Check If More Work Remains
+### Step 8 — Repeat for Next Test
+
+**Loop back to Step 2. Select the NEXT test where "passes": false.**
 
 **IMPORTANT: Do not stop after just one test.**
 

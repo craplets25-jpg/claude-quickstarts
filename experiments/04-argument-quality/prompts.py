@@ -44,10 +44,18 @@ def copy_spec_to_project(project_dir: Path) -> None:
 
     # Also copy the manifesto for reference
     # Manifesto is now in knowledge-base/ (moved from docs/ during restructure)
-    manifesto_source = Path(__file__).parent.parent.parent / "knowledge-base" / "experiment-04-argument-quality" / "EXP_04_MANIFESTO.md"
-    manifesto_dest = project_dir / "EXP_04_MANIFESTO.md"
+    # Detect experiment number from current directory
+    experiment_dir = Path(__file__).parent
+    exp_num = experiment_dir.name.split('-')[0]  # Extract '04' from '04-argument-quality'
+
+    manifesto_filename = f"EXP_{exp_num}_MANIFESTO.md"
+    kb_experiment_dir = f"experiment-{experiment_dir.name}"
+
+    manifesto_source = Path(__file__).parent.parent.parent / "knowledge-base" / kb_experiment_dir / manifesto_filename
+    manifesto_dest = project_dir / manifesto_filename
+
     if manifesto_source.exists() and not manifesto_dest.exists():
         shutil.copy(manifesto_source, manifesto_dest)
-        print("Copied EXP_04_MANIFESTO.md to project directory")
+        print(f"Copied {manifesto_filename} to project directory")
     elif not manifesto_source.exists():
-        print(f"WARNING: EXP_04_MANIFESTO.md not found at {manifesto_source}")
+        print(f"WARNING: {manifesto_filename} not found at {manifesto_source}")
