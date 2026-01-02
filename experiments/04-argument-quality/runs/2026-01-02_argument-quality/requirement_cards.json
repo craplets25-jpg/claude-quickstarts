@@ -1,0 +1,384 @@
+[
+  {
+    "id": "AQ-001",
+    "title": "Client initialization with API key",
+    "description": "ArgumentQualityClient MUST be initialized with a valid API key for authentication",
+    "sources": {
+      "diagram": "Section #050 (lines 2342-2423) — Client Architecture diagram shows ArgumentQualityClient → AbstractClient inheritance",
+      "deepwiki": "Section #052 (lines 2455-2490) — Constructor specification",
+      "example": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/examples/argument_quality_example.py:5-6",
+      "response": "N/A - initialization only",
+      "client": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/api/clients/argument_quality_client.py:8-11"
+    },
+    "input_shape": {
+      "apikey": "string"
+    },
+    "output_shape": {
+      "instance": "ArgumentQualityClient"
+    },
+    "invariants": [
+      "MUST accept API key parameter during initialization",
+      "MUST inherit from base client class or implement equivalent architecture",
+      "MUST validate API key during initialization"
+    ],
+    "non_guarantees": [
+      "No guarantees about API key format validation specifics"
+    ],
+    "legacy_notes": [
+      "Reference sets host to 'https://arg-quality.debater.res.ibm.com'",
+      "Reference inherits validate_api_key_or_throw_exception from utils",
+      "Reference uses 'apikey' as parameter name",
+      "Reference inherits from AbstractClient",
+      "Reference inherits validate_api_key_or_throw_exception from utils"
+    ]
+  },
+  {
+    "id": "AQ-002",
+    "title": "Input format: sentence-topic dictionaries",
+    "description": "The run method MUST accept a list of dictionaries, each containing 'sentence' and 'topic' keys",
+    "sources": {
+      "diagram": "Section #050 (lines 2342-2423) — Input Data Format table specifies dictionary structure",
+      "deepwiki": "Section #052 (lines 2455-2490) — run method parameter specification",
+      "example": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/examples/argument_quality_example.py:14",
+      "response": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/examples/argument_quality_response.txt:1-11",
+      "client": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/api/clients/argument_quality_client.py:13-18"
+    },
+    "input_shape": {
+      "sentence_topic_dicts": [
+        {
+          "sentence": "string",
+          "topic": "string"
+        }
+      ]
+    },
+    "output_shape": "N/A - input validation only",
+    "invariants": [
+      "MUST accept list of dictionaries as input",
+      "Each dictionary MUST contain 'sentence' key",
+      "Each dictionary MUST contain 'topic' key"
+    ],
+    "non_guarantees": [
+      "No guarantees about additional keys in dictionaries",
+      "No guarantees about dictionary order preservation"
+    ],
+    "legacy_notes": []
+  },
+  {
+    "id": "AQ-003",
+    "title": "Empty string validation",
+    "description": "The system MUST reject empty sentences and empty topics with an error",
+    "sources": {
+      "diagram": "Section #050 (lines 2342-2423) — Core Functionality diagram shows InputValidation → PairFormatting flow",
+      "deepwiki": "Section #051 (lines 2424-2454) — Input Validation section specifies error conditions",
+      "example": "Implicit in /workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/examples/argument_quality_example.py:9-12 (no empty strings)",
+      "response": "N/A - error case",
+      "client": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/api/clients/argument_quality_client.py:15-17"
+    },
+    "input_shape": {
+      "sentence_topic_dicts": [
+        {
+          "sentence": "",
+          "topic": "any"
+        }
+      ]
+    },
+    "output_shape": "error",
+    "invariants": [
+      "MUST validate each sentence is non-empty before processing",
+      "MUST validate each topic is non-empty before processing",
+      "MUST raise error when validation fails",
+      "Error MUST indicate which input was invalid"
+    ],
+    "non_guarantees": [
+      "No guarantee about whitespace-only strings being treated as empty"
+    ],
+    "legacy_notes": [
+      "Reference raises RuntimeError with message 'empty input argument in pair {}'",
+      "Reference checks len(sentence_topic_dict['sentence']) == 0",
+      "Reference checks len(sentence_topic_dict['topic']) == 0"
+    ]
+  },
+  {
+    "id": "AQ-004",
+    "title": "Output format: list of quality scores",
+    "description": "The run method MUST return a list of numeric quality scores corresponding to each input pair",
+    "sources": {
+      "diagram": "Section #050 (lines 2342-2423) — Core Functionality diagram shows ScoreCalculation → ScoreResults flow",
+      "deepwiki": "Section #052 (lines 2455-2490) — run method returns specification; Section #047 (lines 2213-2305) specifies 0-1 scale",
+      "example": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/examples/argument_quality_example.py:16",
+      "response": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/examples/argument_quality_response.txt:3,7,11",
+      "client": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/api/clients/argument_quality_client.py:19,23"
+    },
+    "input_shape": "N/A",
+    "output_shape": {
+      "scores": ["float"]
+    },
+    "invariants": [
+      "MUST return a list of numeric values",
+      "Output list length MUST match input list length",
+      "Output order MUST match input order (score[i] corresponds to input[i])",
+      "Scores MUST be numeric (suitable for quality ranking)"
+    ],
+    "non_guarantees": [
+      "No explicit guarantee that scores are in range [0,1] (observed but not enforced in client)",
+      "No guarantee about score precision or rounding"
+    ],
+    "legacy_notes": [
+      "Reference returns scores from run_in_batch method",
+      "Reference observed scores appear to be in range [0,1]",
+      "Reference example shows 4 decimal precision in output formatting"
+    ]
+  },
+  {
+    "id": "AQ-005",
+    "title": "Batch processing capability",
+    "description": "The system MUST support processing multiple sentence-topic pairs in a single request",
+    "sources": {
+      "diagram": "Section #050 (lines 2342-2423) — Core Functionality diagram shows RunInBatch → BatchRequest flow",
+      "deepwiki": "Section #051 (lines 2424-2454) — Batch Processing section",
+      "example": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/examples/argument_quality_example.py:9-12,14",
+      "response": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/examples/argument_quality_response.txt:1-11 (3 inputs, 3 outputs)",
+      "client": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/api/clients/argument_quality_client.py:18-19"
+    },
+    "input_shape": {
+      "sentence_topic_dicts": "list of 1+ dictionaries"
+    },
+    "output_shape": {
+      "scores": "list of corresponding scores"
+    },
+    "invariants": [
+      "MUST accept lists with multiple items",
+      "MUST process all items in the list",
+      "MUST maintain input-output correspondence"
+    ],
+    "non_guarantees": [
+      "No guarantee about batch size limits at client level"
+    ],
+    "legacy_notes": [
+      "Reference uses inherited run_in_batch method from AbstractClient",
+      "Reference formats pairs as [[sentence, topic], ...]",
+      "Reference uses list_name='sentence_topic_pairs'",
+      "Reference AbstractClient uses batch_size=500 internally"
+    ]
+  },
+  {
+    "id": "AQ-006",
+    "title": "Timeout parameter support",
+    "description": "The run method MUST accept an optional timeout parameter for request timeout control",
+    "sources": {
+      "diagram": "Section #050 (lines 2342-2423) — not explicitly shown in diagrams",
+      "deepwiki": "Section #052 (lines 2455-2490) — run method signature specifies timeout parameter with default",
+      "example": "Implicit in /workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/examples/argument_quality_example.py:16 (uses default)",
+      "response": "N/A - timeout is execution parameter",
+      "client": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/api/clients/argument_quality_client.py:13,19"
+    },
+    "input_shape": {
+      "timeout": "int (optional)"
+    },
+    "output_shape": "N/A",
+    "invariants": [
+      "MUST accept timeout parameter",
+      "MUST support configurable timeout for service calls"
+    ],
+    "non_guarantees": [
+      "No guarantee about timeout behavior specifics (error types, retry logic)"
+    ],
+    "legacy_notes": [
+      "Reference default timeout is 60 seconds",
+      "Reference passes timeout to run_in_batch which passes to do_run",
+      "Reference AbstractClient uses requests.post(timeout=timeout)"
+    ]
+  },
+  {
+    "id": "AQ-007",
+    "title": "Factory method access pattern",
+    "description": "ArgumentQualityClient MUST be accessible via DebaterApi factory method",
+    "sources": {
+      "diagram": "Section #043 (lines 2059-2113) — Client Architecture Pattern shows DebaterApi → ArgumentQualityClient connection",
+      "deepwiki": "Section #047 (lines 2213-2305) — Shows get_argument_quality_client() pattern",
+      "example": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/examples/argument_quality_example.py:5-6",
+      "response": "N/A - initialization pattern",
+      "client": "Implied by example usage pattern"
+    },
+    "input_shape": "N/A",
+    "output_shape": {
+      "client": "ArgumentQualityClient instance"
+    },
+    "invariants": [
+      "MUST be instantiable via factory method pattern",
+      "Factory MUST pass API key to client constructor"
+    ],
+    "non_guarantees": [
+      "No guarantee about factory method name"
+    ],
+    "legacy_notes": [
+      "Reference uses debater_api.get_argument_quality_client()",
+      "Reference DebaterApi factory pattern is consistent across all clients",
+      "Reference factory class is named DebaterApi"
+    ]
+  },
+  {
+    "id": "AQ-008",
+    "title": "Data transformation: dict to pairs",
+    "description": "The system MUST transform input dictionaries to sentence-topic pairs for processing",
+    "sources": {
+      "diagram": "Section #050 (lines 2342-2423) — Core Functionality shows PairFormatting step",
+      "deepwiki": "Section #051 (lines 2424-2454) — Batch Processing section mentions formatting",
+      "example": "Implicit transformation in /workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/examples/argument_quality_example.py:14",
+      "response": "N/A - internal transformation",
+      "client": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/api/clients/argument_quality_client.py:18"
+    },
+    "input_shape": {
+      "sentence_topic_dicts": [{"sentence": "string", "topic": "string"}]
+    },
+    "output_shape": "internal representation",
+    "invariants": [
+      "MUST extract sentence and topic from each dictionary",
+      "MUST preserve order during transformation",
+      "MUST transform all input items"
+    ],
+    "non_guarantees": [
+      "No guarantee about internal representation format"
+    ],
+    "legacy_notes": [
+      "Reference transforms to [[sentence, topic], ...] format",
+      "Reference uses list comprehension: [[dict_item['sentence'], dict_item['topic']] for dict_item in sentence_topic_dicts]"
+    ]
+  },
+  {
+    "id": "AQ-009",
+    "title": "Inheritance from AbstractClient",
+    "description": "ArgumentQualityClient MUST inherit core functionality from AbstractClient base class",
+    "sources": {
+      "diagram": "Section #050 (lines 2342-2423) — Client Architecture diagram shows inheritance relationship; Section #043 shows base class pattern",
+      "deepwiki": "Section #054 (lines 2511-2548) — Service Inheritance section lists inherited capabilities",
+      "example": "Implicit in all operations",
+      "response": "N/A - architectural constraint",
+      "client": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/api/clients/argument_quality_client.py:4,8,10"
+    },
+    "input_shape": "N/A",
+    "output_shape": "N/A",
+    "invariants": [
+      "MUST inherit from base client or equivalent architecture",
+      "MUST have HTTP communication capability",
+      "MUST have authentication management capability",
+      "MUST have batch processing capability",
+      "MUST have error handling capability"
+    ],
+    "non_guarantees": [],
+    "legacy_notes": [
+      "Reference uses: from debater_python_api.api.clients.abstract_client import AbstractClient",
+      "Reference calls: AbstractClient.__init__(self, apikey)",
+      "Reference uses inherited run_in_batch method",
+      "Reference AbstractClient provides do_run for HTTP operations",
+      "Reference base class is named AbstractClient"
+    ]
+  },
+  {
+    "id": "AQ-010",
+    "title": "Service endpoint specification",
+    "description": "The client MUST connect to an argument quality scoring service endpoint",
+    "sources": {
+      "diagram": "Section #050 (lines 2342-2423) — Service Layer shows ArgQualityService → ScoreEndpoint",
+      "deepwiki": "Section #054 (lines 2511-2548) — Endpoint Configuration section",
+      "example": "Implicit in functionality",
+      "response": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/examples/argument_quality_response.txt (proves service responds correctly)",
+      "client": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/api/clients/argument_quality_client.py:6,11,19"
+    },
+    "input_shape": "N/A",
+    "output_shape": "N/A",
+    "invariants": [
+      "MUST have configurable service endpoint for scoring",
+      "MUST use appropriate endpoint path for scoring operation"
+    ],
+    "non_guarantees": [
+      "No guarantee about specific host or endpoint URL"
+    ],
+    "legacy_notes": [
+      "Reference uses host: 'https://arg-quality.debater.res.ibm.com'",
+      "Reference uses endpoint: '/score/'",
+      "Reference combines host+endpoint in AbstractClient.do_run"
+    ]
+  },
+  {
+    "id": "AQ-011",
+    "title": "Single responsibility: quality scoring only",
+    "description": "ArgumentQualityClient MUST provide ONLY argument quality scoring functionality, not other NLP services",
+    "sources": {
+      "diagram": "Section #043 (lines 2059-2113) — Shows ArgumentQualityClient as separate from ClaimDetectionClient, EvidenceDetectionClient, etc.",
+      "deepwiki": "Section #049 (lines 2336-2341) — Purpose and Scope clearly defines single service",
+      "example": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/examples/argument_quality_example.py (only scoring, no other operations)",
+      "response": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/examples/argument_quality_response.txt (scores only)",
+      "client": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/api/clients/argument_quality_client.py (single run method)"
+    },
+    "input_shape": "N/A",
+    "output_shape": "N/A",
+    "invariants": [
+      "MUST provide run method for quality scoring",
+      "MUST NOT provide claim detection functionality",
+      "MUST NOT provide evidence detection functionality",
+      "MUST NOT provide other NLP service functionality"
+    ],
+    "non_guarantees": [],
+    "legacy_notes": [
+      "Reference has only one public method: run()",
+      "Reference is separate file from claim_and_evidence_detection_client.py"
+    ]
+  },
+  {
+    "id": "AQ-012",
+    "title": "Execution timing observation",
+    "description": "The system SHOULD track execution timing for observability",
+    "sources": {
+      "diagram": "Section #050 (lines 2342-2423) — Core Functionality diagram shows TimestampLogging in Response Handling",
+      "deepwiki": "Section #053 (lines 2491-2510) — Performance and Logging section documents timing",
+      "example": "Not visible in user example",
+      "response": "N/A - internal logging",
+      "client": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/api/clients/argument_quality_client.py:2,14,20-21"
+    },
+    "input_shape": "N/A",
+    "output_shape": "N/A",
+    "invariants": [
+      "SHOULD capture start timestamp before processing",
+      "SHOULD capture end timestamp after processing",
+      "SHOULD make timing information available for monitoring"
+    ],
+    "non_guarantees": [
+      "No guarantee about timestamp format or precision",
+      "No guarantee about where timing information is sent"
+    ],
+    "legacy_notes": [
+      "Reference uses datetime.datetime.now().timestamp()",
+      "Reference logs via logging.info with format 'argument_quality_client.run = {}ms.'",
+      "Reference calculates as 1000*(time_stamp_end - time_stamp_start)",
+      "Reference log message format: 'argument_quality_client.run = {}ms.'"
+    ]
+  },
+  {
+    "id": "AQ-013",
+    "title": "Request payload structure",
+    "description": "The system MUST format batch requests with list_name and list parameters",
+    "sources": {
+      "diagram": "Section #050 (lines 2342-2423) — Core Functionality shows BatchRequest structure",
+      "deepwiki": "Section #051 (lines 2424-2454) — Batch Processing documents data formatting",
+      "example": "Implicit in processing",
+      "response": "N/A - internal request format",
+      "client": "/workspaces/claude-quickstarts/experiments/_shared/data/reference-examples/debater_python_api/api/clients/argument_quality_client.py:19"
+    },
+    "input_shape": "N/A",
+    "output_shape": "N/A",
+    "invariants": [
+      "MUST structure batch requests with identifiable list parameter",
+      "MUST include transformed pairs in batch request",
+      "MUST send requests to correct endpoint"
+    ],
+    "non_guarantees": [
+      "No guarantee about exact JSON structure of requests"
+    ],
+    "legacy_notes": [
+      "Reference uses list_name='sentence_topic_pairs'",
+      "Reference passes other_payload={} (empty)",
+      "Reference AbstractClient.run_in_batch creates payload dict with list_name key"
+    ]
+  }
+]

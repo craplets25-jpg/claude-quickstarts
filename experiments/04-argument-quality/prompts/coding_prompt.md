@@ -104,7 +104,7 @@ Implement only what the chosen test requires.
 
 **Architecture guidance:**
 - Create a clean implementation that satisfies the test
-- You may use any reasonable structure
+- Follow the structure described in the DeepWiki and reference documents
 - Focus on BEHAVIOR, not legacy code structure
 
 ---
@@ -162,6 +162,39 @@ If you only mark the target test, the next session will waste time re-implementi
 - Test IDs
 - Test types
 - Any field except "passes"
+
+---
+
+### Step 6b — Commit Progress to Git
+
+**IMPORTANT: Commit your changes to the isolated git repository.**
+
+Each experiment run has its own git repository in the current directory.
+Commit after implementing each test or group of related tests.
+
+```bash
+# Check what changed
+git status
+
+# Add your changes
+git add *.py *.json *.txt *.md
+
+# Commit with descriptive message
+git commit -m "Implement TEST-XXX: <description>
+
+- Updated <file>.py with <changes>
+- X/Y tests now passing
+- <any notable decisions or tradeoffs>"
+
+# Verify commit
+git log --oneline -3
+```
+
+**Benefits of committing:**
+- Track incremental progress
+- Easy rollback if something breaks
+- Clear history of what changed when
+- Each run has isolated version history
 
 ---
 

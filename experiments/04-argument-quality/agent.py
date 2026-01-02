@@ -13,6 +13,7 @@ Features:
 """
 
 import asyncio
+import subprocess
 from pathlib import Path
 from typing import Optional
 
@@ -179,6 +180,84 @@ async def run_agent_session(
         return "error", error_msg
 
 
+def _initialize_git_repo(project_dir: Path) -> None:
+    """
+    Initialize a git repository in the project directory.
+
+    Each experiment run gets its own isolated git repository, separate from
+    the parent claude-quickstarts repo. This allows:
+    - Independent version history per run
+    - Agent can commit incrementally
+    - Easy cleanup (just delete run directory)
+    - No contamination between experiments
+    """
+    git_dir = project_dir / ".git"
+
+    # Skip if already initialized
+    if git_dir.exists():
+        print(f"   Git repository already initialized in {project_dir.name}")
+        return
+
+    try:
+        # Initialize git repo
+        subprocess.run(
+            ["git", "init"],
+            cwd=project_dir,
+            check=True,
+            capture_output=True,
+            text=True
+        )
+
+        # Create initial .gitignore
+        gitignore_content = """# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+.temp/
+"""
+        (project_dir / ".gitignore").write_text(gitignore_content)
+
+        print(f"✓ Initialized isolated git repository in {project_dir.name}")
+
+    except subprocess.CalledProcessError as e:
+        print(f"⚠ Warning: Could not initialize git repo: {e}")
+        print(f"   Experiment will continue without git version control")
+    except Exception as e:
+        print(f"⚠ Warning: Unexpected error initializing git: {e}")
+
+
 async def run_autonomous_agent(
     project_dir: Path,
     model: str,
@@ -210,6 +289,9 @@ async def run_autonomous_agent(
 
     # Create project directory
     project_dir.mkdir(parents=True, exist_ok=True)
+
+    # Initialize git repository for this run (isolated from parent repo)
+    _initialize_git_repo(project_dir)
 
     # Initialize logger
     logger = ExperimentLogger(project_dir)

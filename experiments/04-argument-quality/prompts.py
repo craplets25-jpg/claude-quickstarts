@@ -43,8 +43,11 @@ def copy_spec_to_project(project_dir: Path) -> None:
         print("Copied phase_constraint.txt to project directory")
 
     # Also copy the manifesto for reference
-    manifesto_source = Path(__file__).parent / "docs" / "EXP_04_MANIFESTO.md"
+    # Manifesto is now in knowledge-base/ (moved from docs/ during restructure)
+    manifesto_source = Path(__file__).parent.parent.parent / "knowledge-base" / "experiment-04-argument-quality" / "EXP_04_MANIFESTO.md"
     manifesto_dest = project_dir / "EXP_04_MANIFESTO.md"
     if manifesto_source.exists() and not manifesto_dest.exists():
         shutil.copy(manifesto_source, manifesto_dest)
         print("Copied EXP_04_MANIFESTO.md to project directory")
+    elif not manifesto_source.exists():
+        print(f"WARNING: EXP_04_MANIFESTO.md not found at {manifesto_source}")

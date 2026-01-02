@@ -19,10 +19,16 @@ ALLOWED_COMMANDS = {
     "tail",
     "wc",
     "grep",
+    "find",
+    # Shell utilities
+    "echo",
+    "true",
+    "test",
     # File operations
     "cp",
     "mkdir",
     "chmod",
+    "touch",
     # Directory
     "pwd",
     # Python development (for this experiment)

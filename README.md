@@ -38,6 +38,30 @@ An autonomous coding agent powered by the Claude Agent SDK. This project demonst
 
 [Go to Autonomous Coding Agent Quickstart](./autonomous-coding)
 
+Option 1: Structured live log (cleaner)
+
+  tail -f /workspaces/claude-quickstarts/experiments/04-argument-quality/runs/2026-01-02_argument-quality-v3/logs/live.log
+
+  Option 2: Raw agent output (complete thoughts & tool responses)
+
+  tail -f /tmp/claude/-workspaces-claude-quickstarts/tasks/b0da8a0.output
+
+  Option 3: Both side-by-side
+
+  # Terminal 1:
+  tail -f /workspaces/claude-quickstarts/experiments/04-argument-quality/runs/2026-01-02_argument-quality-v3/logs/live.log
+
+  # Terminal 2:
+  tail -f /tmp/claude/-workspaces-claude-quickstarts/tasks/b0da8a0.output
+
+  Option 4: Watch files being created
+
+  watch -n 1 'ls -lh /workspaces/claude-quickstarts/experiments/04-argument-quality/runs/2026-01-02_argument-quality-v3/*.{json,txt,py} 2>/dev/null | tail -20'
+
+  Press Ctrl+C to stop any of these.
+
+  The tail -f commands will show every single line as it's written - complete thoughts, tool calls, responses, everything. No truncation.
+
 ## General Usage
 
 Each quickstart project comes with its own README and setup instructions. Generally, you'll follow these steps:

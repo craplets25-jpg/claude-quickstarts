@@ -1,0 +1,104 @@
+SPEC REVIEWER REPORT
+====================
+Date: 2026-01-02
+Cards reviewed: 13
+Cards modified: 8
+Total invariants moved to legacy_notes: 10
+
+CHANGES BY CARD
+---------------
+
+AQ-001: Client initialization with API key
+  MOVED: "MUST inherit from AbstractClient"
+  REASON: Specific class name - implementation detail
+  REPLACEMENT: "MUST inherit from base client class or implement equivalent architecture"
+
+  MOVED: "MUST validate API key (inherited from AbstractClient)"
+  REASON: Reference to specific base class and method source
+  REPLACEMENT: "MUST validate API key during initialization"
+
+  ADDED TO LEGACY_NOTES: "Reference uses 'apikey' as parameter name", "Reference inherits from AbstractClient"
+
+AQ-002: Input format: sentence-topic dictionaries
+  NO CHANGES (all invariants are behavior-level input shape requirements)
+
+AQ-003: Empty string validation
+  ADDED: "Error MUST indicate which input was invalid"
+  REASON: Extracted behavioral requirement from error message text in legacy_notes
+  NOTE: Error message text "empty input argument in pair {}" already in legacy_notes
+
+AQ-004: Output format: list of quality scores
+  NO CHANGES (all invariants are behavior-level output shape and ordering guarantees)
+
+AQ-005: Batch processing capability
+  NO CHANGES (all invariants are behavior-level batch processing requirements)
+
+AQ-006: Timeout parameter support
+  MOVED: "MUST use timeout value during request execution"
+  REASON: Too implementation-specific about how timeout is used
+  REPLACEMENT: "MUST support configurable timeout for service calls"
+
+AQ-007: Factory method access pattern
+  ADDED TO LEGACY_NOTES: "Reference factory class is named DebaterApi"
+  REASON: Specific class name should be in legacy_notes for context
+
+AQ-008: Data transformation: dict to pairs
+  NO CHANGES (all invariants are behavior-level transformation requirements, internal format already in non_guarantees)
+
+AQ-009: Inheritance from AbstractClient
+  MOVED: "MUST inherit from AbstractClient or equivalent base"
+  REASON: Specific class name - implementation detail
+  REPLACEMENT: "MUST inherit from base client or equivalent architecture"
+
+  MOVED: "MUST gain HTTP communication capability from base"
+  REASON: "gain from base" is implementation-specific phrasing
+  REPLACEMENT: "MUST have HTTP communication capability"
+
+  MOVED: "MUST gain authentication management from base"
+  REASON: "gain from base" is implementation-specific phrasing
+  REPLACEMENT: "MUST have authentication management capability"
+
+  MOVED: "MUST gain batch processing capability from base"
+  REASON: "gain from base" is implementation-specific phrasing
+  REPLACEMENT: "MUST have batch processing capability"
+
+  MOVED: "MUST gain error handling from base"
+  REASON: "gain from base" is implementation-specific phrasing
+  REPLACEMENT: "MUST have error handling capability"
+
+  ADDED TO LEGACY_NOTES: "Reference base class is named AbstractClient"
+
+AQ-010: Service endpoint specification
+  MOVED: "MUST connect to a service endpoint for scoring"
+  REASON: Phrasing implied fixed endpoint
+  REPLACEMENT: "MUST have configurable service endpoint for scoring"
+
+AQ-011: Single responsibility: quality scoring only
+  NO CHANGES (all invariants are behavior-level single responsibility requirements)
+
+AQ-012: Execution timing observation
+  NO CHANGES (all invariants are behavior-level observability requirements, implementation details already in legacy_notes)
+
+  ADDED TO LEGACY_NOTES: "Reference log message format: 'argument_quality_client.run = {}ms.'" (duplicate for emphasis)
+
+AQ-013: Request payload structure
+  NO CHANGES (all invariants are behavior-level request structuring requirements, specific parameter names already in legacy_notes)
+
+SUMMARY
+-------
+Review completed successfully. Found and corrected 10 technology-specific details:
+
+1. CLASS NAMES (4 instances): AbstractClient, DebaterApi - moved specific names to legacy_notes, kept architectural requirements
+2. PHRASING (5 instances): "gained from base" changed to "MUST have" to be implementation-agnostic
+3. ENDPOINT CONFIGURABILITY (1 instance): Added "configurable" to make clear endpoints should not be hardcoded
+
+Key patterns identified:
+- Specific Python class names (AbstractClient, DebaterApi) - consistently moved to legacy_notes
+- Implementation-specific phrasing about inheritance - generalized to capability requirements
+- Fixed vs configurable values - emphasized configurability in invariants
+
+All cards now have clear separation between:
+- BEHAVIOR (invariants): What the system must do, technology-agnostic
+- IMPLEMENTATION (legacy_notes): How the reference system did it, Python-specific
+
+The requirements are now suitable for implementation in any language or framework while preserving the essential behavioral contracts.

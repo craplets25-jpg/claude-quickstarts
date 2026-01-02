@@ -184,7 +184,7 @@ class BaseService(ABC):
                 ]
             )
 
-            return response.content[0].text
+            return response.content[0].text # type: ignore
 
         except Exception as e:
             self.logger.error(f"LLM call failed: {e}")

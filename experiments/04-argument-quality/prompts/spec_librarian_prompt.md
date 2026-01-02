@@ -49,17 +49,17 @@ When you find a diagram relevant to your capability:
 The canonical artifacts are organized as follows:
 
 **DeepWiki Documentation (SPLIT INTO SECTIONS)**:
-- Location: `../../../../deep-wiki-spec-files/debater-early-access-program-sdk-Deepwiki-sections/`
+- Location: `../../deep-wiki-spec-files/debater-early-access-program-sdk-Deepwiki-sections/`
 - **Start here**: Read `INDEX.md` to see all 105 sections with previews
 - Each section is a separate file: `001_purpose-and-scope.md`, `055_architecture-overview.md`, etc.
 - Section files include metadata comments with source line numbers
 
 **Table of Contents**:
-- Location: `../../../../deep-wiki-spec-files/TOC-debater-early-access-program-sdk-H2-H4.md`
+- Location: `../../deep-wiki-spec-files/TOC-debater-early-access-program-sdk-H2-H4.md`
 - Lists all major sections and subsections
 
 **Reference Implementation**:
-- Location: `../../../../reference-files/debater_python_api/`
+- Location: `../../reference-files/debater_python_api/`
 - Contains: `api/clients/`, `examples/`, and response files
 
 ### 1A: Find the diagrams first
@@ -67,7 +67,7 @@ The canonical artifacts are organized as follows:
 **IMPORTANT: DeepWiki has been split into 105 sections for easier reading.**
 
 **Efficient workflow**:
-1. Read `../../../../deep-wiki-spec-files/debater-early-access-program-sdk-Deepwiki-sections/INDEX.md`
+1. Read `../../deep-wiki-spec-files/debater-early-access-program-sdk-Deepwiki-sections/INDEX.md`
 2. Identify sections relevant to your capability (grep for keywords)
 3. Read complete sections (no token limits!)
 4. Extract Mermaid diagrams from relevant sections
@@ -88,8 +88,8 @@ Look for sections containing:
 
 ### 1B: Then read supporting text
 
-1) Read the TOC: `../../../deep-wiki-spec-files/TOC-debater-early-access-program-sdk-H2-H4.md`
-2) Inspect the debater reference tree: `../../../reference-files/debater_python_api/`
+1) Read the TOC: `../../deep-wiki-spec-files/TOC-debater-early-access-program-sdk-H2-H4.md`
+2) Inspect the debater reference tree: `../../reference-files/debater_python_api/`
    - Check `examples/` for example scripts
    - Check `api/clients/` for client implementations
 
@@ -117,9 +117,9 @@ PROOF:
   - Diagram 1: ___ (shows ___)
   - Diagram 2: ___ (shows ___)
   - Diagram 3: ___ (shows ___)
-- [D] Example script: `../../../reference-files/debater_python_api/examples/___`
-- [E] Response witness: `../../../reference-files/debater_python_api/examples/___`
-- [F] Client file: `../../../reference-files/debater_python_api/api/clients/___`
+- [D] Example script: `../../reference-files/debater_python_api/examples/___`
+- [E] Response witness: `../../reference-files/debater_python_api/examples/___`
+- [F] Client file: `../../reference-files/debater_python_api/api/clients/___`
 - [G] Boundary method: `ClassName.method_name()`
 ```
 
@@ -149,9 +149,9 @@ For each candidate requirement, answer these questions:
   "sources": {
     "diagram": "Section #___ — shows data flow/architecture",
     "deepwiki": "Section #___ (extract using deepwiki-navigator)",
-    "example": "../../../reference-files/debater_python_api/examples/argument_quality_example.py:___",
-    "response": "../../../reference-files/debater_python_api/examples/argument_quality_response.txt:___",
-    "client": "../../../reference-files/debater_python_api/api/clients/argument_quality_client.py:run"
+    "example": "../../reference-files/debater_python_api/examples/argument_quality_example.py:___",
+    "response": "../../reference-files/debater_python_api/examples/argument_quality_response.txt:___",
+    "client": "../../reference-files/debater_python_api/api/clients/argument_quality_client.py:run"
   },
   "input_shape": { ... },
   "output_shape": { ... },
@@ -222,6 +222,7 @@ Generate feature_list.json (10-20 tests max), where each test:
 - Checks only invariants/guarantees (BEHAVIOR)
 - Never asserts vendor-specific values
 - Starts with "passes": false
+- **INCLUDES full context from requirement card** (sources, invariants, non_guarantees, legacy_notes, shapes)
 
 **Tests should verify DIAGRAM-DERIVED behaviors:**
 - Does data flow through the stages shown in diagrams?
@@ -230,7 +231,7 @@ Generate feature_list.json (10-20 tests max), where each test:
 
 **Write feature_list.json**
 
-The output MUST be a JSON array at the root level:
+The output MUST be a JSON array at the root level with RICH test entries:
 ```json
 [
   {
@@ -240,7 +241,31 @@ The output MUST be a JSON array at the root level:
     "test_type": "...",
     "passes": false,
     "test_steps": [...],
-    "verification": "..."
+    "verification": "...",
+    "sources": {
+      "diagram": "Section #___ — shows ...",
+      "deepwiki": "Section #___ (lines ___-___) — ...",
+      "example": "path/to/example.py:line",
+      "response": "path/to/response.txt:line",
+      "client": "path/to/client.py:method"
+    },
+    "invariants": [
+      "MUST behavior 1 (from requirement card)",
+      "MUST behavior 2 (from requirement card)"
+    ],
+    "non_guarantees": [
+      "No guarantee about X (from requirement card)"
+    ],
+    "legacy_notes": [
+      "Reference system detail 1 (from requirement card)",
+      "Reference system detail 2 (from requirement card)"
+    ],
+    "input_shape": {
+      "Copy from requirement card if present"
+    },
+    "output_shape": {
+      "Copy from requirement card if present"
+    }
   },
   {
     "id": "TEST-002",
@@ -248,6 +273,8 @@ The output MUST be a JSON array at the root level:
   }
 ]
 ```
+
+**CRITICAL: Copy sources, invariants, non_guarantees, legacy_notes, and shapes from the corresponding requirement card into each test entry. This preserves traceability and context for the Coding Agent.**
 
 Do NOT wrap in an object like `{"tests": [...]}` or `{"capability": "...", "tests": [...]}`.
 Use a bare array. The Coding Agent will read this directly.
