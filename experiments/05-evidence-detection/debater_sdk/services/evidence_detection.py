@@ -1,0 +1,25 @@
+"""
+EvidenceDetectionService - Detect evidence in text using LLM.
+
+Priority: P1 (implement after ArgumentQuality)
+"""
+
+from typing import List, Dict
+
+from ..base import BaseService
+
+
+class EvidenceDetectionService(BaseService):
+    """
+    Detect evidence in sentence-topic pairs (0.0-1.0 score).
+
+    Input: [{"sentence": str, "topic": str}]
+    Output: [float] (0.0-1.0, one score per input)
+    """
+
+    def _process_batch(
+        self,
+        sentence_topic_dicts: List[Dict[str, str]]
+    ) -> List[float]:
+        """TODO: Implement evidence detection logic."""
+        raise NotImplementedError("EvidenceDetectionService - implement after ArgumentQuality")
