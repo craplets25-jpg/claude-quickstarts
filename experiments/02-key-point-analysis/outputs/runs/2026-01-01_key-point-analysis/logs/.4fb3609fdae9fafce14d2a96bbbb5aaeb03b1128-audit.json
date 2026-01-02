@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/workspaces/claude-quickstarts/experiments/exp-03/experiment_03/runs/2026-01-01_key-point-analysis/logs/.4fb3609fdae9fafce14d2a96bbbb5aaeb03b1128-audit.json",
+    "files": [
+        {
+            "date": 1767299690212,
+            "name": "/workspaces/claude-quickstarts/experiments/exp-03/experiment_03/runs/2026-01-01_key-point-analysis/logs/mcp-puppeteer-2026-01-01.log",
+            "hash": "8ddb96ab8f5ce9803ad271d9af7836da621813e745619f9d40d5f1bd361fb9c5"
+        }
+    ],
+    "hashType": "sha256"
+}

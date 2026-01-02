@@ -1,0 +1,280 @@
+[
+  {
+    "id": "TEST-001",
+    "requirement_id": "ED-001",
+    "description": "Verify EvidenceDetectionClient provides run() method that accepts sentence_topic_dicts",
+    "test_type": "interface",
+    "passes": true,
+    "test_steps": [
+      "Create EvidenceDetectionClient instance",
+      "Verify run() method exists",
+      "Call run() with valid sentence_topic_dicts parameter",
+      "Verify method executes without interface errors"
+    ],
+    "verification": "Method signature matches expected interface from diagram and client file"
+  },
+  {
+    "id": "TEST-002",
+    "requirement_id": "ED-002",
+    "description": "Verify system raises error when sentence field is empty",
+    "test_type": "validation",
+    "passes": true,
+    "test_steps": [
+      "Create input with empty sentence: [{'sentence': '', 'topic': 'some topic'}]",
+      "Call run() with this input",
+      "Verify an error is raised",
+      "Verify processing is prevented"
+    ],
+    "verification": "Error raised before any processing occurs (as shown in validation diagram)"
+  },
+  {
+    "id": "TEST-003",
+    "requirement_id": "ED-002",
+    "description": "Verify system raises error when topic field is empty",
+    "test_type": "validation",
+    "passes": true,
+    "test_steps": [
+      "Create input with empty topic: [{'sentence': 'some sentence', 'topic': ''}]",
+      "Call run() with this input",
+      "Verify an error is raised",
+      "Verify processing is prevented"
+    ],
+    "verification": "Error raised before any processing occurs (validation diagram requirement)"
+  },
+  {
+    "id": "TEST-004",
+    "requirement_id": "ED-003",
+    "description": "Verify data transformation preserves sentence-topic pairing",
+    "test_type": "behavior",
+    "passes": true,
+    "test_steps": [
+      "Create input with distinct sentence-topic pairs: [{'sentence': 'A', 'topic': 'T1'}, {'sentence': 'B', 'topic': 'T2'}]",
+      "Call run()",
+      "Verify output has exactly 2 scores",
+      "Verify first score corresponds to ('A', 'T1') and second to ('B', 'T2')"
+    ],
+    "verification": "Transformation maintains pairing as shown in processing pipeline diagram"
+  },
+  {
+    "id": "TEST-005",
+    "requirement_id": "ED-004",
+    "description": "Verify batch processing handles multiple inputs correctly",
+    "test_type": "behavior",
+    "passes": true,
+    "test_steps": [
+      "Create input with 4 sentence-topic pairs",
+      "Call run() once",
+      "Verify all 4 items are processed",
+      "Verify output contains exactly 4 scores"
+    ],
+    "verification": "Single run() call processes all inputs via batch mechanism (diagram requirement)"
+  },
+  {
+    "id": "TEST-006",
+    "requirement_id": "ED-005",
+    "description": "Verify output returns one score per input",
+    "test_type": "behavior",
+    "passes": true,
+    "test_steps": [
+      "Create input with N sentence-topic pairs (e.g., N=3)",
+      "Call run()",
+      "Verify output is a list of length N",
+      "Verify each element is numeric"
+    ],
+    "verification": "Output cardinality matches input cardinality (service integration diagram)"
+  },
+  {
+    "id": "TEST-007",
+    "requirement_id": "ED-005",
+    "description": "Verify scores are numeric values in reasonable range",
+    "test_type": "behavior",
+    "passes": true,
+    "test_steps": [
+      "Create input with valid sentence-topic pairs",
+      "Call run()",
+      "Verify each score is a float or numeric type",
+      "Verify scores are in range [0, 1] (or at least reasonable bounds)"
+    ],
+    "verification": "Output format matches confidence score semantics from diagram"
+  },
+  {
+    "id": "TEST-008",
+    "requirement_id": "ED-006",
+    "description": "Verify client can be initialized with API key",
+    "test_type": "initialization",
+    "passes": true,
+    "test_steps": [
+      "Attempt to create EvidenceDetectionClient with apikey parameter",
+      "Verify client instance is created successfully",
+      "Verify no errors during initialization"
+    ],
+    "verification": "Client initialization follows diagram showing AbstractClient with Authentication"
+  },
+  {
+    "id": "TEST-009",
+    "requirement_id": "ED-007",
+    "description": "Verify factory method provides EvidenceDetectionClient instance",
+    "test_type": "architecture",
+    "passes": true,
+    "test_steps": [
+      "Create DebaterApi or equivalent factory with API key",
+      "Call get_evidence_detection_client() or equivalent factory method",
+      "Verify returned object is an EvidenceDetectionClient instance",
+      "Verify client has run() method"
+    ],
+    "verification": "Factory pattern works as shown in client factory diagram"
+  },
+  {
+    "id": "TEST-010",
+    "requirement_id": "ED-008",
+    "description": "Verify error is raised before processing when input validation fails",
+    "test_type": "validation",
+    "passes": true,
+    "test_steps": [
+      "Create mixed input: [{'sentence': 'valid', 'topic': 'valid'}, {'sentence': '', 'topic': 'valid'}]",
+      "Call run()",
+      "Verify error is raised",
+      "Verify NO partial results are returned"
+    ],
+    "verification": "Validation occurs before processing (processing pipeline diagram)"
+  },
+  {
+    "id": "TEST-011",
+    "requirement_id": "ED-010",
+    "description": "Verify output order matches input order",
+    "test_type": "behavior",
+    "passes": true,
+    "test_steps": [
+      "Create input with distinct characteristics: [strong_evidence_pair, weak_evidence_pair, medium_evidence_pair]",
+      "Call run()",
+      "Verify score[0] corresponds to strong_evidence_pair",
+      "Verify score[1] corresponds to weak_evidence_pair",
+      "Verify score[2] corresponds to medium_evidence_pair"
+    ],
+    "verification": "Order preservation as shown in processing pipeline linear flow"
+  },
+  {
+    "id": "TEST-012",
+    "requirement_id": "ED-010",
+    "description": "Verify positional correspondence between input and output",
+    "test_type": "behavior",
+    "passes": true,
+    "test_steps": [
+      "Create input list with identifiable items at specific indices",
+      "Call run() and get scores",
+      "For each index i, verify output[i] corresponds to input[i]",
+      "Use characteristics from witness file (high/low evidence) to verify correspondence"
+    ],
+    "verification": "Positional indexing works as assumed in example code iteration"
+  },
+  {
+    "id": "TEST-013",
+    "requirement_id": "ED-011",
+    "description": "Verify system handles timeout parameter",
+    "test_type": "configuration",
+    "passes": true,
+    "test_steps": [
+      "Verify timeout parameter is passed to batch processing layer",
+      "This may require checking internal behavior or documentation",
+      "Alternatively, verify system can process requests within reasonable time"
+    ],
+    "verification": "Timeout handling shown in processing pipeline diagram's BatchProcess stage"
+  },
+  {
+    "id": "TEST-014",
+    "requirement_id": "ED-015",
+    "description": "Verify system requires 'sentence' key in input dictionaries",
+    "test_type": "validation",
+    "passes": true,
+    "test_steps": [
+      "Create input missing 'sentence' key: [{'topic': 'some topic'}]",
+      "Call run()",
+      "Verify error is raised (KeyError or similar)",
+      "Verify processing does not proceed"
+    ],
+    "verification": "Required keys from input format specification and service integration diagram"
+  },
+  {
+    "id": "TEST-015",
+    "requirement_id": "ED-015",
+    "description": "Verify system requires 'topic' key in input dictionaries",
+    "test_type": "validation",
+    "passes": true,
+    "test_steps": [
+      "Create input missing 'topic' key: [{'sentence': 'some sentence'}]",
+      "Call run()",
+      "Verify error is raised (KeyError or similar)",
+      "Verify processing does not proceed"
+    ],
+    "verification": "Required keys from input format specification and service integration diagram"
+  },
+  {
+    "id": "TEST-016",
+    "requirement_id": "ED-001",
+    "description": "Verify client inherits from AbstractClient",
+    "test_type": "architecture",
+    "passes": true,
+    "test_steps": [
+      "Create EvidenceDetectionClient instance",
+      "Verify instance has methods from AbstractClient (e.g., run_in_batch, do_run)",
+      "Verify inheritance relationship exists"
+    ],
+    "verification": "Inheritance hierarchy shown in client class hierarchy diagram"
+  },
+  {
+    "id": "TEST-017",
+    "requirement_id": "ED-003",
+    "description": "Verify transformation happens before batch processing",
+    "test_type": "behavior",
+    "passes": true,
+    "test_steps": [
+      "Create valid input with sentence_topic_dicts format",
+      "Call run()",
+      "Verify system successfully processes input",
+      "Verify dictionary format is accepted (not rejected)"
+    ],
+    "verification": "Processing pipeline shows Input → Validation → Transform → BatchProcess sequence"
+  },
+  {
+    "id": "TEST-018",
+    "requirement_id": "ED-005",
+    "description": "Verify varied evidence strength produces varied scores",
+    "test_type": "behavior",
+    "passes": true,
+    "test_steps": [
+      "Create strong evidence input (detailed, relevant sentence)",
+      "Create weak evidence input (vague or unrelated sentence)",
+      "Call run() with both inputs",
+      "Verify strong evidence scores higher than weak evidence"
+    ],
+    "verification": "Score semantics as confidence/probability (witness shows 0.9989 for strong vs 0.0014 for weak)"
+  },
+  {
+    "id": "TEST-019",
+    "requirement_id": "ED-002",
+    "description": "Verify all items are validated before any processing",
+    "test_type": "validation",
+    "passes": true,
+    "test_steps": [
+      "Create input where LAST item has empty sentence: [valid_pair1, valid_pair2, {'sentence': '', 'topic': 't'}]",
+      "Call run()",
+      "Verify error is raised",
+      "Verify NO partial processing of valid_pair1 or valid_pair2 occurs"
+    ],
+    "verification": "Validation layer diagram shows validation of all inputs before processing"
+  },
+  {
+    "id": "TEST-020",
+    "requirement_id": "ED-004",
+    "description": "Verify batch processing aggregates results correctly",
+    "test_type": "behavior",
+    "passes": true,
+    "test_steps": [
+      "Create large input (e.g., 10+ items to potentially span multiple batches)",
+      "Call run() once",
+      "Verify output is a single flat list (not nested)",
+      "Verify all input items have corresponding output scores"
+    ],
+    "verification": "Batch processing returns aggregated results as shown in processing pipeline Output stage"
+  }
+]

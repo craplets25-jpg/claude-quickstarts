@@ -1,0 +1,206 @@
+SPEC REVIEWER REPORT
+====================
+Date: 2026-01-01
+Cards reviewed: 40
+Cards modified: 0
+Total invariants moved to legacy_notes: 0
+
+CHANGES BY CARD
+---------------
+
+KPA-001: Client initialization with API key
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Invariants focus on required parameters, optional parameters, and configurability - all behavioral requirements that could be satisfied with different technologies.
+
+KPA-002: Simple run() method accepts list of comment texts
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Invariants describe input/output requirements and workflow obligations. The 10000 limit is a business rule constraint, not implementation-specific.
+
+KPA-003: Comment text validation - non-empty strings
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Validation rules are behavioral requirements about what inputs are rejected, not how rejection is implemented.
+
+KPA-004: Comment text validation - maximum length
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Requirement to enforce a maximum character length is behavioral. The specific 3000 character limit is already in legacy_notes.
+
+KPA-005: Comment ID validation - uniqueness requirement
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Uniqueness validation and length matching are behavioral requirements independent of implementation.
+
+KPA-006: Comment ID and text type validation
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Type validation requirements are behavioral - any language could enforce "list of strings" in different ways.
+
+KPA-007: Result structure contains keypoint_matchings
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Output structure requirements and ordering guarantees are behavioral contracts, not implementation details.
+
+KPA-008: Sentence match structure contains required fields
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Required fields and sorting order are output shape requirements, technology-agnostic.
+
+KPA-009: Domain creation with configurable parameters
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Parameters and their types are behavioral requirements. Specific endpoint paths and log messages already in legacy_notes.
+
+KPA-010: Batch comment upload with configurable batch size
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Batch processing requirements (configurable size, sequential upload, maintaining pairing) are behavioral. Default value of 2000 already in legacy_notes.
+
+KPA-011: Comment processing status monitoring
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Status structure requirements (dictionary with specific keys) are output shape specifications.
+
+KPA-012: Blocking wait for comment processing completion
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Blocking behavior and completion conditions are behavioral requirements.
+
+KPA-013: Job submission with configurable run parameters
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Parameter support and async execution are behavioral requirements. Specific defaults and endpoint paths already in legacy_notes.
+
+KPA-014: Asynchronous job execution returns future
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Future object interface requirements (methods it must provide) are behavioral contracts.
+
+KPA-015: Job status polling with multiple states
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: State machine definition and state-specific fields are behavioral requirements.
+
+KPA-016: Result retrieval with blocking and non-blocking modes
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Blocking/non-blocking behavior and return value contracts are behavioral. Specific polling intervals already in legacy_notes.
+
+KPA-017: Job cancellation capability
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Cancellation capability and state transition requirements are behavioral.
+
+KPA-018: Domain deletion for cleanup
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Deletion behavior (irreversibility, associated resource cleanup) is behavioral. Method name convention already in legacy_notes.
+
+KPA-019: Exception on illegal input
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Exception raising requirements and distinguishability are behavioral. Specific class names and HTTP codes already in legacy_notes.
+
+KPA-020: Exception on insufficient privileges
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Authorization exception requirements are behavioral. Specific exception class and HTTP codes already in legacy_notes.
+
+KPA-021: Connection error on network failures
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Retry behavior and exception raising are behavioral requirements. Specific retry counts and sleep durations already in legacy_notes.
+
+KPA-022: KpaResult transformation from raw JSON
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Data transformation requirements and output structure are behavioral. Specific class names and pandas usage already in legacy_notes.
+
+KPA-023: Result DataFrame contains match-level details
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Required columns and data preservation requirements are behavioral output specifications.
+
+KPA-024: Summary DataFrame contains aggregated statistics
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Aggregation requirements and coverage calculation semantics are behavioral.
+
+KPA-025: Hierarchy DataFrame captures parent-child relationships
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Hierarchical relationship requirements are behavioral. Algorithm details already in legacy_notes.
+
+KPA-026: CSV export for result and summary DataFrames
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Export capabilities and standard readability requirements are behavioral. Specific naming conventions already in legacy_notes.
+
+KPA-027: JSON export for graph data structures
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Graph representation requirements (nodes, edges, formats) are behavioral. Specific schema already in legacy_notes.
+
+KPA-028: DOCX report generation with formatting
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Output format requirements (valid DOCX, hierarchical structure, formatting) are behavioral. Library choice already in legacy_notes.
+
+KPA-029: Text bullet format for hierarchical summaries
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Hierarchical text representation requirements are behavioral. Specific indentation style already in non_guarantees.
+
+KPA-030: Graph data filtering by minimum matches
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Filtering capabilities and consistency preservation are behavioral requirements.
+
+KPA-031: Graph data filtering by relationship strength
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Edge filtering requirements are behavioral.
+
+KPA-032: Support for predefined key points matching
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Mode switching behavior (predefined vs auto-extraction) is behavioral.
+
+KPA-033: Configurable sentence length filtering
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Filtering parameters and token-based measurement are behavioral requirements. Specific defaults already in legacy_notes.
+
+KPA-034: Configurable mapping policy for match strictness
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Policy options and relative strictness relationships are behavioral requirements.
+
+KPA-035: Optional sentence-to-multiple-keypoints matching
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Boolean parameter and its effect on matching behavior is behavioral.
+
+KPA-036: Comprehensive error information in exceptions
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Error message quality requirements are behavioral. Specific message formats already in legacy_notes.
+
+KPA-037: Result truncation via top_k parameters
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Truncation capabilities and ranking preservation are behavioral requirements.
+
+KPA-038: Automatic domain creation on first upload
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Auto-creation behavior and default parameter usage are behavioral requirements.
+
+KPA-039: Re-upload safety for duplicate comments
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Idempotency and duplicate detection behavior are behavioral requirements.
+
+KPA-040: Progress reporting during processing
+  NO CHANGES (all invariants are behavior-level)
+  ANALYSIS: Progress reporting requirements and monotonicity are behavioral.
+
+SUMMARY
+-------
+All 40 requirement cards were reviewed systematically against the technology-specific implementation checklist.
+
+KEY FINDINGS:
+1. **Clean Separation Already Achieved**: The Spec Librarian did an excellent job separating behavioral requirements from implementation details.
+
+2. **All Invariants Are Behavioral**: Every invariant in the cards represents technology-agnostic requirements:
+   - Input/output shapes (e.g., "MUST accept List[str]")
+   - Behavioral contracts (e.g., "MUST block until complete")
+   - Data structure requirements (e.g., "MUST include 'keypoint_matchings' key")
+   - State machine definitions (e.g., "MUST support PENDING, PROCESSING, DONE states")
+   - Ordering guarantees (e.g., "MUST be sorted by score descending")
+   - Validation rules (e.g., "MUST reject empty strings")
+   - Configurability requirements (e.g., "MUST support optional host override")
+
+3. **Implementation Details Properly Located**: All technology-specific details were already in legacy_notes:
+   - HTTP endpoints (e.g., "/domains", "/kp_extraction")
+   - HTTP status codes (e.g., "422", "403")
+   - Specific class names (e.g., "KpAnalysisTaskFuture", "KpaIllegalInputException")
+   - Specific method names (e.g., "delete_domain_cannot_be_undone()", "_is_list_of_strings()")
+   - Log message formats
+   - Default values (e.g., "batch_size=2000", "arg_min_len=4")
+   - Library choices (e.g., "pandas", "python-docx")
+   - Assertion message texts
+
+4. **Examples of Proper Abstraction**:
+   - ✓ "MUST enforce maximum character length" (behavioral) vs "Reference enforces 3000 character limit" (implementation)
+   - ✓ "MUST retry failed requests" (behavioral) vs "Reference uses 10 retries with 10 second sleep" (implementation)
+   - ✓ "MUST support configurable batch size" (behavioral) vs "Reference default batch_size is 2000" (implementation)
+   - ✓ "MUST raise exception for unauthorized operations" (behavioral) vs "Reference raises KpaNoPrivilegesException for HTTP 403" (implementation)
+
+5. **Zero Modifications Required**: No invariants needed to be moved to legacy_notes, indicating the specification is already at the correct abstraction level for cross-platform implementation.
+
+RECOMMENDATION:
+The requirement cards are ready for use as-is. They provide a clean, technology-agnostic specification that could be implemented in any language or framework while maintaining behavioral compatibility with the reference system.

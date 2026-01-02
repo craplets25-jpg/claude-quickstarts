@@ -1,0 +1,34 @@
+# 01-evidence-detection - .gitignore
+# ====================================
+#
+# Keep logs and monitoring output for debugging (user requirement),
+# but exclude Python bytecode and secrets.
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Secrets
+config/.env
+
+# IDE and OS
+.vscode/
+.DS_Store
+
+# Generated artifacts within runs (but keep logs!)
+outputs/runs/*/.git/objects
+outputs/runs/*/.git/refs
+outputs/runs/*/node_modules/
+outputs/runs/*/dist/
+outputs/runs/*/build/
+
+# KEEP THESE (explicitly not ignored):
+# - config/ (all configuration)
+# - notes/ (all documentation)
+# - outputs/reports/ (all reports)
+# - outputs/runs/*/logs/ (debugging logs)
+# - outputs/runs/*/*.log (session logs)
+# - outputs/runs/*/*.txt (progress, requirements)
+# - outputs/runs/*/*.json (test results, requirements)

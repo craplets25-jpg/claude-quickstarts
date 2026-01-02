@@ -1,0 +1,434 @@
+[
+  {
+    "id": "ED-001",
+    "title": "Client must accept list of sentence-topic dictionaries as input",
+    "description": "The Evidence Detection client must accept input as a list of dictionaries where each dictionary contains a 'sentence' field and a 'topic' field, representing the text to analyze and its context.",
+    "sources": {
+      "diagram": "Section #55: `055_architecture-overview.md` — Service Integration diagram shows 'sentence_topic_dicts [{sentence, topic}, ...]' as the input to the validation layer",
+      "deepwiki": "Section #57: `057_input-and-output-formats.md` (original lines 2654-2681)",
+      "example": "evidence_detection_example.py:14 — Creates sentence_topic_dicts as list of dictionaries",
+      "response": "evidence_detection_response.txt:1-16 — Shows output aligned with 4 input pairs",
+      "client": "claim_and_evidence_detection_client.py:run() method (line 13)"
+    },
+    "input_shape": {
+      "type": "list",
+      "element_type": "dict",
+      "required_keys": ["sentence", "topic"],
+      "key_types": {
+        "sentence": "string",
+        "topic": "string"
+      }
+    },
+    "output_shape": {
+      "type": "list",
+      "element_type": "number",
+      "description": "Confidence scores in same order as input"
+    },
+    "invariants": [
+      "Input MUST be a list of dictionaries",
+      "Each dictionary MUST contain 'sentence' and 'topic' keys",
+      "Both 'sentence' and 'topic' MUST be string values"
+    ],
+    "non_guarantees": [
+      "Specific score values are service-dependent",
+      "Order of processing within the service"
+    ],
+    "legacy_notes": [
+      "Reference uses list comprehension: [{'sentence':sentence, 'topic':topic} for sentence in sentences]"
+    ]
+  },
+  {
+    "id": "ED-002",
+    "title": "Client must validate that sentence and topic fields are not empty",
+    "description": "The system must validate input before processing to ensure neither the sentence nor topic fields contain empty strings, raising an error if validation fails.",
+    "sources": {
+      "diagram": "Section #58: `058_processing-pipeline.md` — Processing Pipeline diagram shows 'Input Validation: Check empty fields, Validate structure' as first step after input",
+      "deepwiki": "Section #59: `059_error-handling.md` (original lines 2715-2726) — Error table shows 'Empty Input' condition",
+      "example": "evidence_detection_example.py:8-12 — All example sentences and topic have non-empty values",
+      "response": "evidence_detection_response.txt:1-16 — All outputs correspond to non-empty inputs",
+      "client": "claim_and_evidence_detection_client.py:15-17 — Checks len(sentence) and len(topic)"
+    },
+    "input_shape": {
+      "validation_rules": [
+        "len(sentence) > 0",
+        "len(topic) > 0"
+      ]
+    },
+    "output_shape": {
+      "error_type": "exception",
+      "description": "Exception raised when validation fails"
+    },
+    "invariants": [
+      "MUST validate each sentence-topic pair before processing",
+      "MUST reject empty sentences (len == 0)",
+      "MUST reject empty topics (len == 0)",
+      "MUST raise an exception when validation fails",
+      "Exception MUST indicate which pair failed validation"
+    ],
+    "non_guarantees": [
+      "Specific exception message format",
+      "Whether validation happens before or during transformation"
+    ],
+    "legacy_notes": [
+      "Reference raises RuntimeError with message format: 'empty input argument in pair {}'",
+      "Reference checks: if (len(sentence_topic_dict['sentence']) == 0 or len(sentence_topic_dict['topic']) == 0)"
+    ]
+  },
+  {
+    "id": "ED-003",
+    "title": "Client must transform input dictionaries into sentence-topic pairs",
+    "description": "The system must transform the input list of dictionaries into pairs of [sentence, topic] for API communication, preserving the order of inputs.",
+    "sources": {
+      "diagram": "Section #58: `058_processing-pipeline.md` — Shows 'Data Transformation: Extract pairs, Format for API' step between validation and batch processing",
+      "deepwiki": "Section #56: `056_client-classes.md` (original lines 2610-2653) — Describes 'Data Transformation: Converts dictionary format to list of pairs'",
+      "example": "evidence_detection_example.py:14 — Input created as list of dicts with 'sentence' and 'topic' keys",
+      "response": "evidence_detection_response.txt:1-16 — Output order matches input order",
+      "client": "claim_and_evidence_detection_client.py:18 — List comprehension creates pairs"
+    },
+    "input_shape": {
+      "type": "list",
+      "element_type": "dict"
+    },
+    "output_shape": {
+      "type": "list",
+      "element_type": "list",
+      "description": "List of [sentence, topic] pairs"
+    },
+    "invariants": [
+      "MUST extract sentence and topic from each dictionary",
+      "MUST preserve input order in transformed output",
+      "Transformation MUST occur after validation"
+    ],
+    "non_guarantees": [
+      "Internal pair format details",
+      "Whether transformation creates new objects or references",
+      "How transformed data is passed to batch processing layer"
+    ],
+    "legacy_notes": [
+      "Reference uses: [[dict_item['sentence'], dict_item['topic']] for dict_item in sentence_topic_dicts]",
+      "Reference passes transformed pairs to run_in_batch with list_name='sentence_topic_pairs'"
+    ]
+  },
+  {
+    "id": "ED-004",
+    "title": "Client must inherit from AbstractClient and use batch processing",
+    "description": "The Evidence Detection client must inherit from AbstractClient (or a subclass) and utilize the inherited run_in_batch method for service communication.",
+    "sources": {
+      "diagram": "Section #55: `055_architecture-overview.md` — Client Class Hierarchy diagram shows AbstractClient → ClaimEvidenceDetectionClient → EvidenceDetectionClient with 'Batch Processing' in AbstractClient",
+      "deepwiki": "Section #56: `056_client-classes.md` (original lines 2610-2653) — States 'Batch Processing: Uses inherited run_in_batch method'",
+      "example": "evidence_detection_example.py:6 — Gets client from DebaterApi factory",
+      "response": "evidence_detection_response.txt:1-16 — All 4 inputs processed and returned",
+      "client": "claim_and_evidence_detection_client.py:9,19-20 — Inherits from AbstractClient, calls run_in_batch"
+    },
+    "input_shape": {
+      "inheritance": "AbstractClient or subclass"
+    },
+    "output_shape": {
+      "method": "run_in_batch",
+      "description": "Batch processing method from AbstractClient"
+    },
+    "invariants": [
+      "MUST inherit batch processing capabilities from base client",
+      "MUST use batch processing method for service communication",
+      "Batch processing MUST handle multiple pairs in a single request",
+      "Batch method MUST be called after data transformation",
+      "Endpoint MUST be configurable for service communication",
+      "Timeout MUST be configurable for service communication"
+    ],
+    "non_guarantees": [
+      "Specific batch size limits",
+      "Internal batching algorithm details"
+    ],
+    "legacy_notes": [
+      "Reference uses: self.run_in_batch(list_name='sentence_topic_pairs', list=pairs, other_payload={}, endpoint=endpoint, timeout=100)",
+      "Reference endpoint value: '/score/'",
+      "Reference timeout: 100 seconds",
+      "Reference method name: run_in_batch",
+      "Reference list_name parameter: 'sentence_topic_pairs'"
+    ]
+  },
+  {
+    "id": "ED-005",
+    "title": "Client must return confidence scores in same order as input",
+    "description": "The system must return a list of numerical confidence scores where each score corresponds to the input sentence-topic pair at the same index position.",
+    "sources": {
+      "diagram": "Section #55: `055_architecture-overview.md` — Service Integration diagram shows 'Confidence Scores: Claim probability, Evidence probability' as output",
+      "deepwiki": "Section #57: `057_input-and-output-formats.md` (original lines 2654-2681) — States output includes 'numerical confidence values'",
+      "example": "evidence_detection_example.py:18-22 — Iterates through indices matching input to output",
+      "response": "evidence_detection_response.txt:1-16 — 4 input pairs yield 4 score outputs in order",
+      "client": "claim_and_evidence_detection_client.py:24 — Returns scores from run_in_batch"
+    },
+    "input_shape": {
+      "type": "list",
+      "length": "N"
+    },
+    "output_shape": {
+      "type": "list",
+      "element_type": "number",
+      "length": "N (matches input)",
+      "value_range": "confidence score (typically 0.0 to 1.0)"
+    },
+    "invariants": [
+      "Output MUST be a list of numerical scores",
+      "Output list length MUST equal input list length",
+      "Score at index i MUST correspond to input pair at index i",
+      "Order MUST be preserved from input to output"
+    ],
+    "non_guarantees": [
+      "Specific score values (service-dependent)",
+      "Score precision (number of decimal places)",
+      "Exact numerical range (though typically 0-1)"
+    ],
+    "legacy_notes": [
+      "Reference example formats scores with 4 decimal places: '{:.4f}'.format(scores[j])",
+      "Reference response shows scores: 0.9989, 0.9987, 0.4178, 0.0014"
+    ]
+  },
+  {
+    "id": "ED-006",
+    "title": "Client must implement run method as primary entry point",
+    "description": "The Evidence Detection client must provide a run() method that accepts sentence_topic_dicts as the primary public API entry point.",
+    "sources": {
+      "diagram": "Section #55: `055_architecture-overview.md` — Client Class Hierarchy shows 'run()' in ClaimEvidenceDetectionClient box",
+      "deepwiki": "Section #56: `056_client-classes.md` (original lines 2610-2653) — Documents run method with parameters and description",
+      "example": "evidence_detection_example.py:16 — Calls evidence_detection_client.run(sentence_topic_dicts)",
+      "response": "evidence_detection_response.txt:1-16 — Results from run() method call",
+      "client": "claim_and_evidence_detection_client.py:13 — Method signature: def run(self, sentence_topic_dicts)"
+    },
+    "input_shape": {
+      "method_name": "run",
+      "parameters": ["sentence_topic_dicts"]
+    },
+    "output_shape": {
+      "return_type": "list",
+      "element_type": "number"
+    },
+    "invariants": [
+      "MUST provide a public run() method",
+      "run() MUST accept sentence_topic_dicts parameter",
+      "run() MUST return list of scores",
+      "run() is the primary API entry point"
+    ],
+    "non_guarantees": [
+      "Additional optional parameters",
+      "Internal method implementation details"
+    ],
+    "legacy_notes": [
+      "Reference signature: def run(self, sentence_topic_dicts)",
+      "Reference returns: scores from run_in_batch"
+    ]
+  },
+  {
+    "id": "ED-007",
+    "title": "System must log performance metrics for run method",
+    "description": "The system should track and log execution time from the start to completion of the run method to support performance monitoring.",
+    "sources": {
+      "diagram": "Section #58: `058_processing-pipeline.md` — Processing Pipeline shows 'Performance Logging: Execution time, Request metrics' as output alongside Results",
+      "deepwiki": "Section #60: `060_performance-characteristics.md` (original lines 2727-2752) — States 'Execution Time: Measured from start to completion of the run method'",
+      "example": "evidence_detection_example.py:16-22 — No logging shown in example (internal behavior)",
+      "response": "evidence_detection_response.txt:1-16 — No logging shown (internal behavior)",
+      "client": "claim_and_evidence_detection_client.py:14,21-22 — Timestamps and logging.info call"
+    },
+    "input_shape": {
+      "timestamp_start": "datetime before processing",
+      "timestamp_end": "datetime after processing"
+    },
+    "output_shape": {
+      "log_entry": "execution time in milliseconds"
+    },
+    "invariants": [
+      "MUST capture start timestamp before processing",
+      "MUST capture end timestamp after processing",
+      "MUST calculate execution time duration",
+      "SHOULD log performance metrics"
+    ],
+    "non_guarantees": [
+      "Log format or destination",
+      "Whether logging is always enabled",
+      "Precision of timestamps"
+    ],
+    "legacy_notes": [
+      "Reference uses: datetime.datetime.now().timestamp()",
+      "Reference logs: 'claim_and_evidence_detection_client.run = {}ms.'.format(1000*(time_stamp_end - time_stamp_start))",
+      "Reference uses logging.info()",
+      "Reference log message format includes method name and milliseconds"
+    ]
+  },
+  {
+    "id": "ED-008",
+    "title": "Client must initialize with API key authentication",
+    "description": "The Evidence Detection client must be initialized with an API key for authentication, either directly or through the DebaterApi factory.",
+    "sources": {
+      "diagram": "Section #55: `055_architecture-overview.md` — Client Class Hierarchy shows 'Authentication' in AbstractClient",
+      "deepwiki": "Section #56: `056_client-classes.md` (original lines 2610-2653) — Documents '__init__ with apikey parameter'",
+      "example": "evidence_detection_example.py:5-6 — Creates DebaterApi with API key, gets client from factory",
+      "response": "evidence_detection_response.txt:1-16 — Results indicate successful authentication",
+      "client": "claim_and_evidence_detection_client.py:10-11 — __init__ accepts apikey parameter"
+    },
+    "input_shape": {
+      "parameter": "apikey",
+      "type": "string"
+    },
+    "output_shape": {
+      "client_instance": "EvidenceDetectionClient"
+    },
+    "invariants": [
+      "MUST accept API key during initialization",
+      "MUST pass API key to parent class (AbstractClient)",
+      "Client MUST be obtainable from factory",
+      "Factory method MUST propagate authentication"
+    ],
+    "non_guarantees": [
+      "API key format or validation rules",
+      "Where API key is stored internally",
+      "Whether key can be changed after initialization"
+    ],
+    "legacy_notes": [
+      "Reference uses: DebaterApi('PUT_YOUR_API_KEY_HERE')",
+      "Reference factory method: debater_api.get_evidence_detection_client()",
+      "Reference __init__ calls: AbstractClient.__init__(self, apikey)",
+      "Reference factory class name: DebaterApi"
+    ]
+  },
+  {
+    "id": "ED-009",
+    "title": "EvidenceDetectionClient must be distinct from ClaimDetectionClient",
+    "description": "The Evidence Detection client must be a separate class from Claim Detection, with its own class definition, even if they share common functionality through inheritance.",
+    "sources": {
+      "diagram": "Section #55: `055_architecture-overview.md` — Client Class Hierarchy shows EvidenceDetectionClient and ClaimDetectionClient as separate classes both inheriting from ClaimEvidenceDetectionClient",
+      "deepwiki": "Section #56: `056_client-classes.md` (original lines 2610-2653) — Documents separate client classes with 'EvidenceDetectionClient focuses on detecting evidence'",
+      "example": "evidence_detection_example.py:6 — Gets evidence_detection_client (not claim client)",
+      "response": "evidence_detection_response.txt:1-16 — Evidence detection scores (not claim scores)",
+      "client": "claim_and_evidence_detection_client.py:26-29,32-35 — Separate class definitions"
+    },
+    "input_shape": {
+      "class_hierarchy": "AbstractClient → ClaimEvidenceDetectionClient → EvidenceDetectionClient"
+    },
+    "output_shape": {
+      "distinct_classes": ["ClaimDetectionClient", "EvidenceDetectionClient"]
+    },
+    "invariants": [
+      "MUST define EvidenceDetectionClient as a separate class",
+      "MUST define ClaimDetectionClient as a separate class",
+      "Both MAY share common base class for shared functionality",
+      "Each client MUST be obtainable independently from factory",
+      "Service endpoint MUST be configurable per client type"
+    ],
+    "non_guarantees": [
+      "Exact inheritance hierarchy structure",
+      "Whether they inherit from same immediate parent",
+      "Internal implementation sharing details"
+    ],
+    "legacy_notes": [
+      "Reference: ClaimDetectionClient inherits from ClaimEvidenceDetectionClient",
+      "Reference: EvidenceDetectionClient inherits from AbstractClient directly (not ClaimEvidenceDetectionClient)",
+      "Reference host for Evidence: https://motion-evidence.debater.res.ibm.com",
+      "Reference host for Claim: https://claim-sentence.debater.res.ibm.com",
+      "Reference class names: ClaimDetectionClient, EvidenceDetectionClient, ClaimEvidenceDetectionClient"
+    ]
+  },
+  {
+    "id": "ED-010",
+    "title": "Client must handle network and service communication errors",
+    "description": "The system must handle network issues and service communication failures that may occur during batch processing, inheriting error handling from the base client.",
+    "sources": {
+      "diagram": "Section #55: `055_architecture-overview.md` — Client Class Hierarchy shows 'HTTP Communication' in AbstractClient",
+      "deepwiki": "Section #59: `059_error-handling.md` (original lines 2715-2726) — Error table shows 'Network Issues: Service communication failures, Inherited from AbstractClient'",
+      "example": "evidence_detection_example.py:16 — run() call may encounter network errors",
+      "response": "evidence_detection_response.txt:1-16 — Successful response (no errors)",
+      "client": "claim_and_evidence_detection_client.py:19-20 — Calls run_in_batch which handles HTTP communication"
+    },
+    "input_shape": {
+      "error_sources": ["network failures", "service unavailability", "timeout"]
+    },
+    "output_shape": {
+      "error_handling": "inherited from AbstractClient"
+    },
+    "invariants": [
+      "MUST handle network communication errors",
+      "MUST handle service unavailability",
+      "MUST handle timeout scenarios",
+      "Error handling SHOULD be inherited from base client"
+    ],
+    "non_guarantees": [
+      "Specific exception types raised",
+      "Retry logic details",
+      "Error message formats"
+    ],
+    "legacy_notes": [
+      "Reference timeout: 100 seconds in run_in_batch call",
+      "Reference uses AbstractClient error handling mechanisms",
+      "Reference communication protocol: HTTP"
+    ]
+  },
+  {
+    "id": "ED-011",
+    "title": "System must process Input through validation, transformation, and batch stages",
+    "description": "The processing pipeline must flow through distinct stages: Input → Validation → Transformation → Batch Processing → Results, as shown in the processing pipeline diagram.",
+    "sources": {
+      "diagram": "Section #58: `058_processing-pipeline.md` — Processing Pipeline diagram shows complete flow from Input through Validation, Transform, BatchProcess to Results",
+      "deepwiki": "Section #56: `056_client-classes.md` (original lines 2610-2653) — Lists operations: 1. Input Validation, 2. Data Transformation, 3. Batch Processing, 4. Performance Logging",
+      "example": "evidence_detection_example.py:14-16 — Creates input, calls run which triggers pipeline",
+      "response": "evidence_detection_response.txt:1-16 — Results from complete pipeline",
+      "client": "claim_and_evidence_detection_client.py:13-24 — Implements pipeline stages in order"
+    },
+    "input_shape": {
+      "pipeline_stages": ["Input", "Validation", "Transformation", "Batch Processing", "Results"]
+    },
+    "output_shape": {
+      "data_flow": "sequential processing through stages"
+    },
+    "invariants": [
+      "Processing MUST flow through stages in order",
+      "Validation MUST occur before transformation",
+      "Transformation MUST occur before batch processing",
+      "Batch processing MUST occur before returning results",
+      "Each stage MUST complete before next stage begins"
+    ],
+    "non_guarantees": [
+      "Whether stages can be parallelized",
+      "Internal sub-steps within each stage",
+      "Whether stages are separate methods or inline"
+    ],
+    "legacy_notes": [
+      "Reference implements stages inline within run() method",
+      "Reference validation: lines 15-17",
+      "Reference transformation: line 18",
+      "Reference batch processing: lines 19-20",
+      "Reference logging: lines 21-22"
+    ]
+  },
+  {
+    "id": "ED-012",
+    "title": "Input validation must check all pairs before processing any",
+    "description": "The validation stage must check all sentence-topic pairs for empty fields before proceeding to transformation or processing, failing fast if any pair is invalid.",
+    "sources": {
+      "diagram": "Section #58: `058_processing-pipeline.md` — Shows validation as complete stage before transformation",
+      "deepwiki": "Section #56: `056_client-classes.md` (original lines 2610-2653) — States 'Input Validation: Checks that neither sentence nor topic fields are empty' as first step",
+      "example": "evidence_detection_example.py:14 — All inputs valid (no validation errors)",
+      "response": "evidence_detection_response.txt:1-16 — Results only for valid inputs",
+      "client": "claim_and_evidence_detection_client.py:15-17 — for loop validates all pairs"
+    },
+    "input_shape": {
+      "validation_strategy": "check all before processing"
+    },
+    "output_shape": {
+      "behavior": "fail fast on first invalid pair or proceed after validating all"
+    },
+    "invariants": [
+      "MUST validate all pairs before transformation",
+      "MUST raise exception if any pair is invalid",
+      "Exception MUST prevent processing of any pairs",
+      "Validation MUST happen before data transformation"
+    ],
+    "non_guarantees": [
+      "Whether validation stops at first invalid pair or checks all",
+      "Order of validation checks",
+      "Specific validation implementation"
+    ],
+    "legacy_notes": [
+      "Reference uses for loop to check all pairs: for sentence_topic_dict in sentence_topic_dicts",
+      "Reference raises exception immediately on finding invalid pair"
+    ]
+  }
+]

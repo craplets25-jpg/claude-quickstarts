@@ -1,0 +1,74 @@
+EXPERIMENT 03 — PHASE CONSTRAINT (READ FIRST)
+=============================================
+
+STATUS: SPEC DERIVATION ONLY.
+You are not allowed to implement code or run the coding workflow in this session.
+Your job is to derive:
+- requirement_cards.json
+- feature_list.json (small acceptance test pack)
+- claude-progress.txt
+and then STOP.
+
+ONTOLOGY (the only reality)
+1) DeepWiki TOC:
+   ../../../_shared/data/deepwiki/TOC-debater-early-access-program-sdk-H2-H4.md
+2) DeepWiki body (split into sections):
+   ../../../_shared/data/deepwiki/debater-early-access-program-sdk-Deepwiki-sections/
+   - Start with INDEX.md to find relevant sections
+   - Each section is a separate file with metadata
+3) Debater reference tree (read-only evidence):
+   ../../../_shared/data/reference-examples/debater_python_api/
+   - clients define conceptual boundaries + public interfaces
+   - examples + *_response.txt define witnessed I/O and shape constraints
+
+PHASE 1 SCOPE (choose exactly one)
+You must choose EXACTLY ONE capability from:
+- Key Point Analysis
+
+NOTE: Key Point Analysis is more complex than Evidence Detection.
+Expected test suite size: 30-40 tests (vs 18 for Evidence Detection).
+This tests document-driven derivation at higher complexity level.
+
+SELECTION PROOF (required)
+For the capability you choose, you must cite all of the following:
+A) >=1 relevant TOC heading (H2/H3/H4)
+B) The matching DeepWiki section(s) - cite by section number and filename
+C) >=1 example script in ../../../_shared/data/reference-examples/debater_python_api/examples/
+D) The corresponding *_response.txt witness file
+E) The corresponding client file in ../../../_shared/data/reference-examples/debater_python_api/api/clients/
+F) The client entry-point method you treat as the API boundary (e.g., run())
+
+If any of A-F is missing, you are not allowed to choose that capability.
+
+DERIVATION RULE (critical)
+- You may derive INPUT/OUTPUT SHAPES, INVARIANTS, and ERROR CONDITIONS.
+- You may NOT "inherit" infrastructure or vendor details as requirements unless
+  the intent is clearly "must" at the behavior level.
+  Example: observed URLs, endpoints, timeouts, logging strings are evidence
+  about the legacy system, NOT automatically requirements for the new system.
+
+OUTPUTS (hard limits)
+1) requirement_cards.json
+   - 10-25 cards max
+   - Each card MUST cite DeepWiki + example + response + client
+   - Each card MUST separate:
+     * invariants (guaranteed / required behavior)
+     * non_guarantees (observed in witnesses but not guaranteed)
+   - Each card MUST distinguish:
+     * behavior requirements (what the capability DOES)
+     * legacy_notes (implementation details from the reference system)
+2) feature_list.json
+   - 10-20 tests max (may be 30-40 for complex capabilities like Key Point Analysis)
+   - Each test references exactly one requirement card id
+   - All tests start with "passes": false
+   - Tests are immutable except "passes"
+   - Tests verify BEHAVIOR, not legacy implementation details
+3) claude-progress.txt
+   - what you read
+   - selection proof
+   - what you produced
+   - what the next agent should do
+
+STOP RULE
+After producing the three outputs, STOP immediately.
+Do not implement code. Do not install. Do not run tests.

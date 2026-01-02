@@ -1,0 +1,67 @@
+# Experiments Directory - .gitignore
+# ====================================
+#
+# Philosophy: Version control logs and monitoring for debugging,
+# but exclude large generated artifacts and Python bytecode.
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+.directory
+
+# Environment files with secrets
+**/.env
+**/config/.env
+
+# Generated project files within runs (keep logs but not code artifacts)
+**/outputs/runs/*/.git
+**/outputs/runs/*/node_modules/
+**/outputs/runs/*/package-lock.json
+**/outputs/runs/*/dist/
+**/outputs/runs/*/build/
+
+# KEEP THESE (explicitly not ignored):
+# - config/ (prompts, settings)
+# - notes/ (human documentation)
+# - outputs/reports/ (analysis reports)
+# - outputs/runs/*/logs/ (debugging logs)
+# - outputs/runs/*/experiment.log (session logs)
+# - outputs/runs/*/claude-progress.txt (progress tracking)
+# - outputs/runs/*/feature_list.json (test results)
+# - README.md files
+
+# Old experiment directories (will be deleted after migration)
+exp-02/
+exp-03/
+
+# Proposal documents (temporary migration docs)
+RESTRUCTURE_PROPOSAL.md
+RESTRUCTURE_PROPOSAL_V2.md
+MIGRATION_COMMANDS.md

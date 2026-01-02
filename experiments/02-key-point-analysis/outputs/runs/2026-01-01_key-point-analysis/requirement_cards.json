@@ -1,0 +1,1399 @@
+[
+  {
+    "id": "KPA-001",
+    "title": "Client initialization with API key",
+    "description": "The KPA client must be initialized with an API key for authentication",
+    "sources": {
+      "diagram": "Section #18: `018_kpa-client-architecture.md` — Client Layer shows DebaterApi → KpAnalysisClient inheritance structure",
+      "deepwiki": "Section #17: `017_client-initialization.md` (original lines 786-811)",
+      "example": "../../../reference-files/debater_python_api/examples/keypoints_example.py:4-5",
+      "response": "N/A - initialization only",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:27-35 (constructor)"
+    },
+    "input_shape": {
+      "apikey": "string (required)",
+      "host": "string (optional)",
+      "verify_certificate": "boolean (optional, default True)"
+    },
+    "output_shape": {
+      "returns": "KpAnalysisClient instance"
+    },
+    "invariants": [
+      "MUST accept an apikey parameter",
+      "MUST create a valid client instance when given valid apikey",
+      "MUST support optional host override for alternative services",
+      "MUST support optional certificate verification control"
+    ],
+    "non_guarantees": [
+      "No validation of apikey format at initialization time",
+      "No network call during initialization"
+    ],
+    "legacy_notes": [
+      "Reference uses default host: https://keypoint-matching-backend.debater.res.ibm.com",
+      "Reference extends AbstractClient base class",
+      "Reference stores verify_certificate for use in HTTP requests"
+    ]
+  },
+  {
+    "id": "KPA-002",
+    "title": "Simple run() method accepts list of comment texts",
+    "description": "The primary entry point must accept a list of comment texts and return key point analysis results",
+    "sources": {
+      "diagram": "Section #23: `023_simple-usage-pattern.md` — Workflow diagram shows run() → create → upload → wait → start → get → delete → return",
+      "deepwiki": "Section #23: `023_simple-usage-pattern.md` (original lines 1133-1177)",
+      "example": "../../../reference-files/debater_python_api/examples/keypoints_example.py:7-22",
+      "response": "../../../reference-files/debater_python_api/examples/keypoints_response.txt:1-11",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:239-263"
+    },
+    "input_shape": {
+      "comments_texts": "List[str] (required) - list of comment strings",
+      "comments_ids": "Optional[List[str]] - list of unique IDs, auto-generated if None"
+    },
+    "output_shape": {
+      "returns": "dict with 'keypoint_matchings' key containing list of key point matches"
+    },
+    "invariants": [
+      "MUST accept comments_texts as List[str]",
+      "MUST accept optional comments_ids as List[str]",
+      "MUST auto-generate comment IDs if not provided",
+      "MUST return structured result with keypoint_matchings",
+      "MUST handle end-to-end workflow (domain creation, upload, processing, job execution, cleanup)",
+      "MUST enforce maximum of 10000 comments",
+      "MUST clean up temporary resources after completion"
+    ],
+    "non_guarantees": [
+      "Specific format of auto-generated IDs",
+      "Exact timing of intermediate steps",
+      "Number of key points returned"
+    ],
+    "legacy_notes": [
+      "Reference generates temp domain name using calendar.timegm(time.gmtime())",
+      "Reference raises Exception with message about 10000 limit",
+      "Reference logs progress at each stage",
+      "Reference calls delete_domain_cannot_be_undone() for cleanup"
+    ]
+  },
+  {
+    "id": "KPA-003",
+    "title": "Comment text validation - non-empty strings",
+    "description": "Comment texts must be validated to reject empty or whitespace-only strings",
+    "sources": {
+      "diagram": "Section #20: `020_comment-upload-and-processing.md` — Upload Process diagram shows Input Validation stage with ValidateTexts",
+      "deepwiki": "Section #20: `020_comment-upload-and-processing.md` (original lines 904-980)",
+      "example": "../../../reference-files/debater_python_api/examples/keypoints_example.py:7-18 (all non-empty)",
+      "response": "N/A - validation prevents empty input",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:126"
+    },
+    "input_shape": {
+      "comments_texts": "List[str]"
+    },
+    "output_shape": {
+      "on_invalid": "raises error/exception"
+    },
+    "invariants": [
+      "MUST reject comments_texts containing None values",
+      "MUST reject comments_texts containing empty strings ('')",
+      "MUST reject comments_texts containing whitespace-only strings",
+      "MUST validate before processing begins"
+    ],
+    "non_guarantees": [
+      "Specific error message text",
+      "Type of exception raised"
+    ],
+    "legacy_notes": [
+      "Reference uses assertion with message 'comment_texts must not have an empty string in it'",
+      "Reference checks: c is None or c == '' or len(c) == 0 or c.isspace()"
+    ]
+  },
+  {
+    "id": "KPA-004",
+    "title": "Comment text validation - maximum length",
+    "description": "Comment texts must be validated to enforce maximum character length",
+    "sources": {
+      "diagram": "Section #20: `020_comment-upload-and-processing.md` — Upload Process diagram shows ValidateLength substep",
+      "deepwiki": "Section #20: `020_comment-upload-and-processing.md` - Table shows 'Max comment length: 3000 characters'",
+      "example": "../../../reference-files/debater_python_api/examples/keypoints_example.py:7-18 (all under limit)",
+      "response": "N/A - validation prevents oversized input",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:127"
+    },
+    "input_shape": {
+      "comments_texts": "List[str]"
+    },
+    "output_shape": {
+      "on_invalid": "raises error/exception"
+    },
+    "invariants": [
+      "MUST enforce maximum character length per comment",
+      "MUST validate all comments before processing begins",
+      "MUST reject any comment exceeding the limit"
+    ],
+    "non_guarantees": [
+      "Specific error message text",
+      "Whether limit is inclusive or exclusive"
+    ],
+    "legacy_notes": [
+      "Reference enforces 3000 character limit",
+      "Reference uses assertion with message 'comment_texts must be shorter than 3000 charachters'",
+      "Reference checks: len(c) > 3000"
+    ]
+  },
+  {
+    "id": "KPA-005",
+    "title": "Comment ID validation - uniqueness requirement",
+    "description": "When comment IDs are provided, they must be validated for uniqueness",
+    "sources": {
+      "diagram": "Section #20: `020_comment-upload-and-processing.md` — Upload Process diagram shows ValidateIds substep checking uniqueness",
+      "deepwiki": "Section #20: `020_comment-upload-and-processing.md` - Table shows 'Comment ID uniqueness: Required'",
+      "example": "../../../reference-files/debater_python_api/examples/keypoints_example.py:7-18 (implicit uniqueness)",
+      "response": "N/A - validation only",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:123"
+    },
+    "input_shape": {
+      "comments_ids": "List[str]",
+      "comments_texts": "List[str]"
+    },
+    "output_shape": {
+      "on_invalid": "raises error/exception"
+    },
+    "invariants": [
+      "MUST validate that all comment IDs are unique",
+      "MUST validate that comments_ids and comments_texts have same length",
+      "MUST validate before processing begins"
+    ],
+    "non_guarantees": [
+      "Specific error message text",
+      "Type of exception raised"
+    ],
+    "legacy_notes": [
+      "Reference uses assertion: len(comments_ids) == len(set(comments_ids))",
+      "Reference message: 'comment_ids must be unique'",
+      "Reference also checks length match: len(comments_ids) == len(comments_texts)"
+    ]
+  },
+  {
+    "id": "KPA-006",
+    "title": "Comment ID and text type validation",
+    "description": "Comments IDs and texts must be validated as lists of strings",
+    "sources": {
+      "diagram": "Section #20: `020_comment-upload-and-processing.md` — ValidateIds and ValidateTexts show type checking",
+      "deepwiki": "Section #20: `020_comment-upload-and-processing.md` (original lines 904-980)",
+      "example": "../../../reference-files/debater_python_api/examples/keypoints_example.py:7-18",
+      "response": "N/A - validation only",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:124-125"
+    },
+    "input_shape": {
+      "comments_texts": "any type (validated)",
+      "comments_ids": "any type (validated)"
+    },
+    "output_shape": {
+      "on_invalid": "raises error/exception"
+    },
+    "invariants": [
+      "MUST validate comments_texts is a list of strings",
+      "MUST validate comments_ids is a list of strings",
+      "MUST reject non-list types",
+      "MUST reject lists containing non-string elements"
+    ],
+    "non_guarantees": [
+      "Specific error message text"
+    ],
+    "legacy_notes": [
+      "Reference uses helper method _is_list_of_strings()",
+      "Reference checks: isinstance(lst, list) and all elements are strings",
+      "Reference messages: 'comment_texts must be a list of strings', 'comment_ids must be a list of strings'"
+    ]
+  },
+  {
+    "id": "KPA-007",
+    "title": "Result structure contains keypoint_matchings",
+    "description": "Analysis results must contain a keypoint_matchings list with key points and matched sentences",
+    "sources": {
+      "diagram": "Section #22: `022_result-retrieval.md` — Job Status Flow diagram shows GetResult → ReturnResult path returning keypoint_matchings",
+      "deepwiki": "Section #22: `022_result-retrieval.md` (original lines 1036-1132) - Result Structure section",
+      "example": "../../../reference-files/debater_python_api/examples/keypoints_example.py:21 (receives result)",
+      "response": "../../../reference-files/debater_python_api/examples/keypoints_response.txt:1-11",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:372-375 (docstring)"
+    },
+    "input_shape": {
+      "result": "dict returned from analysis"
+    },
+    "output_shape": {
+      "keypoint_matchings": "List[dict] where each dict has 'keypoint' and 'matching' keys"
+    },
+    "invariants": [
+      "MUST return dict with 'keypoint_matchings' key",
+      "MUST contain list of keypoint match objects",
+      "Each keypoint match MUST have 'keypoint' field with key point text",
+      "Each keypoint match MUST have 'matching' field with list of matched sentences",
+      "Key points MUST be ordered by number of matched sentences (descending)"
+    ],
+    "non_guarantees": [
+      "Exact number of key points returned",
+      "Specific key point texts generated",
+      "Exact match scores"
+    ],
+    "legacy_notes": [
+      "Reference returns result['result'] from job status",
+      "Reference sorts keypoint_matchings descendingly by number of matched sentences",
+      "Reference includes metadata per match: domain, comment_id, sentence_id, sentence_text, score, argument_quality, num_tokens, span_start, span_end"
+    ]
+  },
+  {
+    "id": "KPA-008",
+    "title": "Sentence match structure contains required fields",
+    "description": "Each matched sentence must contain core identifying and scoring fields",
+    "sources": {
+      "diagram": "Section #22: `022_result-retrieval.md` — Result Structure shows match object structure",
+      "deepwiki": "Section #22: `022_result-retrieval.md` lines 78-97 showing match structure",
+      "example": "N/A - output only",
+      "response": "../../../reference-files/debater_python_api/examples/keypoints_response.txt:2-11",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:375 (docstring describing match fields)"
+    },
+    "input_shape": {
+      "N/A": "output structure"
+    },
+    "output_shape": {
+      "match": "dict with sentence_text, score, and metadata fields"
+    },
+    "invariants": [
+      "Each match MUST contain 'sentence_text' field",
+      "Each match MUST contain 'score' field representing match confidence",
+      "Each match MUST contain 'comment_id' for source identification",
+      "Each match MUST contain 'sentence_id' for unique identification",
+      "Matches within a key point MUST be sorted by score (descending)"
+    ],
+    "non_guarantees": [
+      "Presence of all optional metadata fields",
+      "Specific score values",
+      "Exact formatting of sentence_text"
+    ],
+    "legacy_notes": [
+      "Reference includes: domain, comment_id, sentence_id, sents_in_comment, span_start, span_end, num_tokens, argument_quality",
+      "Reference sorts matchings descendingly by match score"
+    ]
+  },
+  {
+    "id": "KPA-009",
+    "title": "Domain creation with configurable parameters",
+    "description": "System must support creating domains with customizable processing parameters",
+    "sources": {
+      "diagram": "Section #18: `018_kpa-client-architecture.md` — Core Operations shows create_domain() method",
+      "deepwiki": "Section #19: `019_domain-management.md` (original lines 865-903)",
+      "example": "N/A - simple example uses run() which auto-creates domain",
+      "response": "N/A - domain creation only",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:88-107"
+    },
+    "input_shape": {
+      "domain": "string - domain name",
+      "domain_params": "Optional[dict] with keys: dont_split, do_stance_analysis, do_kp_quality"
+    },
+    "output_shape": {
+      "returns": "None (success) or raises exception"
+    },
+    "invariants": [
+      "MUST accept domain name as string",
+      "MUST accept optional domain_params dictionary",
+      "MUST support dont_split parameter (boolean)",
+      "MUST support do_stance_analysis parameter (boolean)",
+      "MUST support do_kp_quality parameter (boolean)",
+      "MUST create domain with specified parameters",
+      "MUST reject creating domain that already exists"
+    ],
+    "non_guarantees": [
+      "Domain name format restrictions",
+      "Maximum domain name length",
+      "Additional domain parameters beyond the documented three"
+    ],
+    "legacy_notes": [
+      "Reference POSTs to /domains endpoint",
+      "Reference default values: dont_split=False, do_stance_analysis=False, do_kp_quality=False",
+      "Reference logs: 'created domain: %s with domain_params: %s'"
+    ]
+  },
+  {
+    "id": "KPA-010",
+    "title": "Batch comment upload with configurable batch size",
+    "description": "System must support uploading large numbers of comments in batches",
+    "sources": {
+      "diagram": "Section #20: `020_comment-upload-and-processing.md` — Batch Processing substep shows splitting and uploading",
+      "deepwiki": "Section #20: `020_comment-upload-and-processing.md` - Table shows 'Batch size: 2000 (default)'",
+      "example": "../../../reference-files/debater_python_api/examples/keypoints_example.py:21 (via run())",
+      "response": "N/A - upload only",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:109-143"
+    },
+    "input_shape": {
+      "domain": "string",
+      "comments_ids": "List[str]",
+      "comments_texts": "List[str]",
+      "batch_size": "int (optional, default 2000)"
+    },
+    "output_shape": {
+      "returns": "None"
+    },
+    "invariants": [
+      "MUST accept batch_size parameter to control upload chunking",
+      "MUST split large comment lists into batches of specified size",
+      "MUST upload each batch sequentially",
+      "MUST maintain ID-text pairing across batches",
+      "MUST handle any total number of comments by batching"
+    ],
+    "non_guarantees": [
+      "Optimal batch size value",
+      "Parallel batch uploads",
+      "Progress reporting format"
+    ],
+    "legacy_notes": [
+      "Reference default batch_size is 2000",
+      "Reference uses list slicing: ids_texts[i:i + batch_size]",
+      "Reference POSTs to /comments endpoint per batch",
+      "Reference logs: 'uploaded %d comments, out of %d'"
+    ]
+  },
+  {
+    "id": "KPA-011",
+    "title": "Comment processing status monitoring",
+    "description": "System must provide visibility into comment processing progress",
+    "sources": {
+      "diagram": "Section #20: `020_comment-upload-and-processing.md` — Status Monitoring shows get_comments_status() and wait methods",
+      "deepwiki": "Section #20: `020_comment-upload-and-processing.md` (original lines 904-980)",
+      "example": "N/A - simple example uses run() which handles internally",
+      "response": "N/A - status only",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:144-166"
+    },
+    "input_shape": {
+      "domain": "string"
+    },
+    "output_shape": {
+      "returns": "dict with keys: processed_comments, pending_comments, processed_sentences"
+    },
+    "invariants": [
+      "MUST return dictionary with processing status counts",
+      "MUST include processed_comments count",
+      "MUST include pending_comments count",
+      "MUST include processed_sentences count",
+      "MUST provide accurate real-time status"
+    ],
+    "non_guarantees": [
+      "Exact polling interval needed for freshness",
+      "Additional status fields",
+      "Processing time estimates"
+    ],
+    "legacy_notes": [
+      "Reference GETs from /comments endpoint",
+      "Reference returns: {'processed_comments': N, 'pending_comments': M, 'processed_sentences': K}"
+    ]
+  },
+  {
+    "id": "KPA-012",
+    "title": "Blocking wait for comment processing completion",
+    "description": "System must provide a method to block until all comments are processed",
+    "sources": {
+      "diagram": "Section #13: `013_system-overview.md` — Workflow diagram shows WaitProcessing step between Upload and StartJob",
+      "deepwiki": "Section #20: `020_comment-upload-and-processing.md` (original lines 904-980)",
+      "example": "N/A - run() handles internally",
+      "response": "N/A - waiting only",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:164-166 (referenced by run())"
+    },
+    "input_shape": {
+      "domain": "string"
+    },
+    "output_shape": {
+      "returns": "None (when complete)"
+    },
+    "invariants": [
+      "MUST block until all comments in domain are processed",
+      "MUST poll processing status",
+      "MUST return when pending_comments reaches zero",
+      "MUST not return prematurely while comments are still processing"
+    ],
+    "non_guarantees": [
+      "Polling interval",
+      "Timeout behavior",
+      "Progress reporting during wait"
+    ],
+    "legacy_notes": [
+      "Reference method: wait_till_all_comments_are_processed()",
+      "Reference likely polls get_comments_status() internally"
+    ]
+  },
+  {
+    "id": "KPA-013",
+    "title": "Job submission with configurable run parameters",
+    "description": "System must support starting analysis jobs with extensive configuration options",
+    "sources": {
+      "diagram": "Section #18: `018_kpa-client-architecture.md` — Core Operations shows start_kp_analysis_job() method",
+      "deepwiki": "Section #21: `021_job-submission-and-execution.md` (original lines 981-1035)",
+      "example": "N/A - simple example uses defaults",
+      "response": "N/A - job submission only",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:168-211"
+    },
+    "input_shape": {
+      "domain": "string",
+      "run_params": "Optional[dict] with multiple configuration keys",
+      "description": "Optional[string]"
+    },
+    "output_shape": {
+      "returns": "KpAnalysisTaskFuture instance"
+    },
+    "invariants": [
+      "MUST accept domain parameter",
+      "MUST accept optional run_params dictionary",
+      "MUST support keypoints parameter (List[str]) for predefined key points",
+      "MUST support arg_min_len parameter for sentence filtering",
+      "MUST support arg_max_len parameter for sentence filtering",
+      "MUST support mapping_policy parameter for matching strictness",
+      "MUST return future object for async result retrieval",
+      "MUST execute job asynchronously"
+    ],
+    "non_guarantees": [
+      "Default values for unspecified parameters",
+      "Complete list of all run_params",
+      "Job execution time",
+      "Number of key points when not predefined"
+    ],
+    "legacy_notes": [
+      "Reference POSTs to /kp_extraction endpoint",
+      "Reference parameters include: keypoints, keypoints_by_job_id, arg_min_len (default 4), arg_max_len (default 36), arg_relative_aq_threshold (default 1.0), mapping_policy (default 'NORMAL'), sentence_to_multiple_kps (default False), n_top_kps (auto), kp_relative_aq_threshold (default 0.65), invalid_kps_comment_ids (default [])",
+      "Reference returns KpAnalysisTaskFuture instance"
+    ]
+  },
+  {
+    "id": "KPA-014",
+    "title": "Asynchronous job execution returns future",
+    "description": "Job submission must return a future object for polling and result retrieval",
+    "sources": {
+      "diagram": "Section #13: `013_system-overview.md` — Workflow shows StartJob → TaskFuture",
+      "deepwiki": "Section #21: `021_job-submission-and-execution.md` (original lines 981-1035)",
+      "example": "N/A - run() uses internally",
+      "response": "N/A - future creation only",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:345-359 (KpAnalysisTaskFuture class)"
+    },
+    "input_shape": {
+      "client": "KpAnalysisClient instance",
+      "job_id": "string"
+    },
+    "output_shape": {
+      "returns": "KpAnalysisTaskFuture instance with get_result() and cancel() methods"
+    },
+    "invariants": [
+      "MUST return future object immediately without waiting for job completion",
+      "Future MUST wrap job_id",
+      "Future MUST provide get_result() method",
+      "Future MUST provide cancel() method",
+      "Future MUST provide get_job_id() method"
+    ],
+    "non_guarantees": [
+      "Specific future implementation details",
+      "Threading or async/await patterns"
+    ],
+    "legacy_notes": [
+      "Reference class: KpAnalysisTaskFuture",
+      "Reference stores client and job_id",
+      "Reference has polling_timout_secs attribute (default 60)"
+    ]
+  },
+  {
+    "id": "KPA-015",
+    "title": "Job status polling with multiple states",
+    "description": "System must support checking job status with well-defined state transitions",
+    "sources": {
+      "diagram": "Section #22: `022_result-retrieval.md` — Job Status Flow diagram shows 5 states: PENDING, PROCESSING, DONE, ERROR, CANCELED",
+      "deepwiki": "Section #22: `022_result-retrieval.md` (original lines 1036-1132)",
+      "example": "N/A - run() handles internally",
+      "response": "N/A - status only",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:388-408"
+    },
+    "input_shape": {
+      "job_id": "string"
+    },
+    "output_shape": {
+      "returns": "dict with 'status' key and state-specific fields"
+    },
+    "invariants": [
+      "MUST support PENDING state indicating job queued",
+      "MUST support PROCESSING state indicating job running",
+      "MUST support DONE state indicating successful completion",
+      "MUST support ERROR state indicating job failure",
+      "MUST support CANCELED state indicating job was stopped",
+      "MUST return status dictionary with 'status' key",
+      "DONE state MUST include 'result' field with analysis results",
+      "ERROR state MUST include 'error_msg' field",
+      "PROCESSING state SHOULD include 'progress' field"
+    ],
+    "non_guarantees": [
+      "Exact progress calculation method",
+      "Transition timing between states",
+      "Additional status fields"
+    ],
+    "legacy_notes": [
+      "Reference checks result['status'] against string literals",
+      "Reference logs different messages per state",
+      "Reference uses polling loop with sleep between checks"
+    ]
+  },
+  {
+    "id": "KPA-016",
+    "title": "Result retrieval with blocking and non-blocking modes",
+    "description": "Future must support both blocking wait and non-blocking status check for results",
+    "sources": {
+      "diagram": "Section #22: `022_result-retrieval.md` — diagram shows polling loop with dont_wait option",
+      "deepwiki": "Section #22: `022_result-retrieval.md` (original lines 1036-1132)",
+      "example": "N/A - run() uses blocking mode",
+      "response": "../../../reference-files/debater_python_api/examples/keypoints_response.txt:1-11",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:367-412"
+    },
+    "input_shape": {
+      "top_k_kps": "Optional[int]",
+      "top_k_sentences_per_kp": "Optional[int]",
+      "dont_wait": "bool (default False)",
+      "wait_secs": "Optional[int]",
+      "polling_timout_secs": "Optional[int]",
+      "high_verbosity": "bool (default True)"
+    },
+    "output_shape": {
+      "returns": "dict with keypoint_matchings when DONE, None if dont_wait=True and not ready, raises Exception on ERROR/CANCELED"
+    },
+    "invariants": [
+      "MUST block and poll when dont_wait=False until job completes",
+      "MUST return immediately when dont_wait=True",
+      "MUST return None when dont_wait=True and job not complete",
+      "MUST return result dictionary when job status is DONE",
+      "MUST raise exception when job status is ERROR",
+      "MUST raise exception when job status is CANCELED",
+      "MUST respect wait_secs timeout if specified",
+      "MUST support result truncation via top_k_kps and top_k_sentences_per_kp"
+    ],
+    "non_guarantees": [
+      "Default polling interval",
+      "Exact exception types",
+      "Progress reporting format"
+    ],
+    "legacy_notes": [
+      "Reference default polling_timout_secs is 60 seconds",
+      "Reference uses time.sleep(polling_timout_secs) between polls",
+      "Reference calls get_kp_extraction_job_status() in loop",
+      "Reference logs job_id at various stages",
+      "Reference calls _print_progress_bar() when high_verbosity=True"
+    ]
+  },
+  {
+    "id": "KPA-017",
+    "title": "Job cancellation capability",
+    "description": "System must support canceling running jobs to free resources",
+    "sources": {
+      "diagram": "Section #18: `018_kpa-client-architecture.md` — Task Management shows cancel() method",
+      "deepwiki": "Section #24: `024_error-handling-and-monitoring.md` (original lines 1178-1240)",
+      "example": "N/A - example doesn't cancel",
+      "response": "N/A - cancellation only",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:414-418"
+    },
+    "input_shape": {
+      "job_id": "string (via future or direct client call)"
+    },
+    "output_shape": {
+      "returns": "None or confirmation"
+    },
+    "invariants": [
+      "MUST support canceling running jobs",
+      "MUST accept job_id to identify job to cancel",
+      "Canceled job status MUST transition to CANCELED state",
+      "Subsequent get_result() on canceled job MUST raise exception"
+    ],
+    "non_guarantees": [
+      "Immediate cancellation (may take time to stop)",
+      "Resource cleanup timing",
+      "Cancellation of already-completed jobs"
+    ],
+    "legacy_notes": [
+      "Reference has both KpAnalysisTaskFuture.cancel() and KpAnalysisClient.cancel_kp_extraction_job()",
+      "Reference raises Exception with message 'waiting for result on a job that was canceled'"
+    ]
+  },
+  {
+    "id": "KPA-018",
+    "title": "Domain deletion for cleanup",
+    "description": "System must support deleting domains to clean up resources",
+    "sources": {
+      "diagram": "Section #13: `013_system-overview.md` — Workflow shows DeleteDomain step before ReturnResult",
+      "deepwiki": "Section #19: `019_domain-management.md` (original lines 865-903)",
+      "example": "N/A - run() handles internally",
+      "response": "N/A - cleanup only",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:262 (called by run())"
+    },
+    "input_shape": {
+      "domain": "string"
+    },
+    "output_shape": {
+      "returns": "None"
+    },
+    "invariants": [
+      "MUST support deleting domains by name",
+      "MUST remove all comments and jobs associated with domain",
+      "MUST be irreversible (cannot undo)",
+      "Method name MUST indicate irreversibility to user"
+    ],
+    "non_guarantees": [
+      "Immediate vs eventual deletion",
+      "Deletion of non-existent domain behavior",
+      "Whether deletion waits for running jobs"
+    ],
+    "legacy_notes": [
+      "Reference method name: delete_domain_cannot_be_undone()",
+      "Reference likely DELETEs to /domains endpoint"
+    ]
+  },
+  {
+    "id": "KPA-019",
+    "title": "Exception on illegal input",
+    "description": "System must raise specific exception for malformed or invalid requests",
+    "sources": {
+      "diagram": "N/A - error handling not diagrammed",
+      "deepwiki": "Section #24: `024_error-handling-and-monitoring.md` - Table shows 'KpaIllegalInputException: 422'",
+      "example": "N/A - example uses valid input",
+      "response": "N/A - error case",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:63-66"
+    },
+    "input_shape": {
+      "invalid_request": "any request with validation errors"
+    },
+    "output_shape": {
+      "raises": "exception indicating illegal input"
+    },
+    "invariants": [
+      "MUST raise exception for invalid request parameters",
+      "MUST distinguish illegal input from other error types",
+      "MUST provide error information to caller"
+    ],
+    "non_guarantees": [
+      "Exact exception class name",
+      "Error message format",
+      "Which validations trigger which exceptions"
+    ],
+    "legacy_notes": [
+      "Reference raises KpaIllegalInputException for HTTP 422",
+      "Reference logs error before raising",
+      "Reference message format: 'There is a problem with the request (%d): %s'"
+    ]
+  },
+  {
+    "id": "KPA-020",
+    "title": "Exception on insufficient privileges",
+    "description": "System must raise specific exception for authorization failures",
+    "sources": {
+      "diagram": "N/A - error handling not diagrammed",
+      "deepwiki": "Section #24: `024_error-handling-and-monitoring.md` - Table shows 'KpaNoPrivilegesException: 403'",
+      "example": "N/A - example uses valid credentials",
+      "response": "N/A - error case",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:67-70"
+    },
+    "input_shape": {
+      "unauthorized_request": "request with invalid/insufficient credentials"
+    },
+    "output_shape": {
+      "raises": "exception indicating authorization failure"
+    },
+    "invariants": [
+      "MUST raise exception for unauthorized operations",
+      "MUST distinguish authorization failures from other error types",
+      "MUST provide error information to caller"
+    ],
+    "non_guarantees": [
+      "Exact exception class name",
+      "Error message format"
+    ],
+    "legacy_notes": [
+      "Reference raises KpaNoPrivilegesException for HTTP 403",
+      "Reference logs error before raising",
+      "Reference message format: 'User is not authorized to perform the requested operation (%d): %s'"
+    ]
+  },
+  {
+    "id": "KPA-021",
+    "title": "Connection error on network failures",
+    "description": "System must raise exception after retry exhaustion on network errors",
+    "sources": {
+      "diagram": "N/A - error handling not diagrammed",
+      "deepwiki": "Section #24: `024_error-handling-and-monitoring.md` - Table shows 'ConnectionError: N/A'",
+      "example": "N/A - example assumes network works",
+      "response": "N/A - error case",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:74-83"
+    },
+    "input_shape": {
+      "network_unavailable": "request when network is unavailable"
+    },
+    "output_shape": {
+      "raises": "ConnectionError after retries exhausted"
+    },
+    "invariants": [
+      "MUST retry failed requests before giving up",
+      "MUST raise exception when all retries exhausted",
+      "MUST distinguish network errors from other error types"
+    ],
+    "non_guarantees": [
+      "Number of retries",
+      "Retry backoff strategy",
+      "Exact exception message"
+    ],
+    "legacy_notes": [
+      "Reference uses retries parameter (default 10)",
+      "Reference logs warnings during retries: '%s, retries left: %d'",
+      "Reference sleeps 10 seconds between retries",
+      "Reference raises ConnectionError when retries < 0"
+    ]
+  },
+  {
+    "id": "KPA-022",
+    "title": "KpaResult transformation from raw JSON",
+    "description": "System must provide data transformation from raw API JSON to structured result objects",
+    "sources": {
+      "diagram": "Section #26: `026_kparesult-data-model.md` — Data Flow diagram shows JsonAPI → CreateFromJson → KpaResult → ResultDf/SummaryDf/HierarchyDf",
+      "deepwiki": "Section #26: `026_kparesult-data-model.md` (original lines 1245-1307)",
+      "example": "N/A - simple example doesn't use KpaResult",
+      "response": "N/A - KpaResult is processing layer",
+      "client": "N/A - KpaResult is separate from client"
+    },
+    "input_shape": {
+      "result_json": "dict with keypoint_matchings"
+    },
+    "output_shape": {
+      "returns": "KpaResult object with result_df, summary_df, hierarchy_df"
+    },
+    "invariants": [
+      "MUST accept raw JSON from API",
+      "MUST provide factory method for creating from JSON",
+      "MUST transform JSON into DataFrame representations",
+      "MUST generate result_df with detailed matches",
+      "MUST generate summary_df with aggregated statistics",
+      "MUST generate hierarchy_df with relationships",
+      "MUST maintain data consistency across representations"
+    ],
+    "non_guarantees": [
+      "Specific DataFrame column order",
+      "DataFrame implementation library",
+      "Intermediate transformation steps"
+    ],
+    "legacy_notes": [
+      "Reference uses KpaResult.create_from_result_json()",
+      "Reference uses pandas DataFrames",
+      "Reference has result_json, result_df, summary_df, hierarchy_df attributes"
+    ]
+  },
+  {
+    "id": "KPA-023",
+    "title": "Result DataFrame contains match-level details",
+    "description": "result_df must contain detailed information for each sentence-to-keypoint match",
+    "sources": {
+      "diagram": "Section #27: `027_data-transformation-pipeline.md` — Stage 2: DataFrame Creation",
+      "deepwiki": "Section #27: `027_data-transformation-pipeline.md` - Result DataFrame Structure table",
+      "example": "N/A - simple example uses print output",
+      "response": "N/A - DataFrame is alternative representation",
+      "client": "N/A - KpaResult processing"
+    },
+    "input_shape": {
+      "N/A": "internal transformation"
+    },
+    "output_shape": {
+      "result_df": "DataFrame with columns: kp, sentence_text, match_score, comment_id, sentence_id, argument_quality, etc."
+    },
+    "invariants": [
+      "MUST include 'kp' column with key point text",
+      "MUST include 'sentence_text' column with matched sentence",
+      "MUST include 'match_score' column with confidence",
+      "MUST include 'comment_id' column for traceability",
+      "MUST include 'sentence_id' column for unique identification",
+      "MUST preserve all matches from raw JSON",
+      "MUST maintain sort order by key point and score"
+    ],
+    "non_guarantees": [
+      "Complete list of all columns",
+      "Column data types",
+      "Whether stance columns are always present"
+    ],
+    "legacy_notes": [
+      "Reference includes: kp, sentence_text, match_score, comment_id, sentence_id, argument_quality, kp_quality",
+      "Reference adds stance columns when stance analysis enabled",
+      "Reference adds selected_stance and stance_conf columns"
+    ]
+  },
+  {
+    "id": "KPA-024",
+    "title": "Summary DataFrame contains aggregated statistics",
+    "description": "summary_df must contain per-keypoint aggregated metrics and coverage statistics",
+    "sources": {
+      "diagram": "Section #27: `027_data-transformation-pipeline.md` — Stage 3: Summary Generation",
+      "deepwiki": "Section #27: `027_data-transformation-pipeline.md` - Summary DataFrame Structure table",
+      "example": "N/A - simple example uses print output",
+      "response": "N/A - DataFrame is alternative representation",
+      "client": "N/A - KpaResult processing"
+    },
+    "input_shape": {
+      "result_df": "detailed match DataFrame"
+    },
+    "output_shape": {
+      "summary_df": "DataFrame with columns: kp, #sentences, sentences_coverage, #comments, comments_coverage, etc."
+    },
+    "invariants": [
+      "MUST include 'kp' column with key point text",
+      "MUST include '#sentences' column with match count",
+      "MUST include 'sentences_coverage' column with percentage",
+      "MUST include '#comments' column with unique comment count",
+      "MUST include 'comments_coverage' column with percentage",
+      "MUST aggregate from result_df",
+      "Coverage percentages MUST be relative to total sentences/comments"
+    ],
+    "non_guarantees": [
+      "Exact column names (# prefix vs other formats)",
+      "Decimal precision for coverage percentages",
+      "Additional calculated metrics"
+    ],
+    "legacy_notes": [
+      "Reference includes: kp, #sentences, sentences_coverage, #comments, comments_coverage, num_tokens, argument_quality, kp_quality",
+      "Reference coverage is percentage of total"
+    ]
+  },
+  {
+    "id": "KPA-025",
+    "title": "Hierarchy DataFrame captures parent-child relationships",
+    "description": "hierarchy_df must represent hierarchical relationships between key points",
+    "sources": {
+      "diagram": "Section #27: `027_data-transformation-pipeline.md` — Stage 4: Hierarchy Processing",
+      "deepwiki": "Section #26: `026_kparesult-data-model.md` - Table showing hierarchy_df component",
+      "example": "N/A - simple example doesn't show hierarchy",
+      "response": "N/A - hierarchy is advanced feature",
+      "client": "N/A - KpaResult processing"
+    },
+    "input_shape": {
+      "result_df": "match-level data",
+      "summary_df": "aggregated data"
+    },
+    "output_shape": {
+      "hierarchy_df": "DataFrame with parent-child relationships and subtree counts"
+    },
+    "invariants": [
+      "MUST capture parent-child relationships between key points",
+      "MUST include subtree sentence counts",
+      "MUST support top-level aggregation identification",
+      "MUST be derivable from result_df and summary_df"
+    ],
+    "non_guarantees": [
+      "Hierarchy detection algorithm",
+      "Threshold for parent-child relationships",
+      "Maximum hierarchy depth"
+    ],
+    "legacy_notes": [
+      "Reference uses update_dataframes_with_hierarchical_results()",
+      "Reference creates parent-child links based on sentence overlap/semantics"
+    ]
+  },
+  {
+    "id": "KPA-026",
+    "title": "CSV export for result and summary DataFrames",
+    "description": "System must support exporting DataFrames to CSV files",
+    "sources": {
+      "diagram": "Section #15: `015_data-processing-pipeline.md` — Result Processing Flow shows WriteCSV path",
+      "deepwiki": "Section #32: `032_csv-file-generation.md` (not read but referenced in INDEX)",
+      "example": "N/A - simple example uses print",
+      "response": "N/A - CSV is export format",
+      "client": "N/A - KpaResult processing"
+    },
+    "input_shape": {
+      "file_path": "string",
+      "which_df": "indicator of result_df or summary_df"
+    },
+    "output_shape": {
+      "creates": "CSV files on disk"
+    },
+    "invariants": [
+      "MUST support writing result_df to CSV",
+      "MUST support writing summary_df to CSV",
+      "MUST support writing hierarchy_df to CSV",
+      "CSV files MUST be readable by standard tools",
+      "CSV MUST preserve data structure and column names"
+    ],
+    "non_guarantees": [
+      "CSV dialect/quoting style",
+      "Encoding (though UTF-8 expected)",
+      "Specific file naming conventions"
+    ],
+    "legacy_notes": [
+      "Reference naming: *_result.csv, *_kps_summary.csv, *_hierarchy.csv",
+      "Reference uses write_to_file() method",
+      "Reference uses pandas to_csv()"
+    ]
+  },
+  {
+    "id": "KPA-027",
+    "title": "JSON export for graph data structures",
+    "description": "System must support exporting graph representations as JSON",
+    "sources": {
+      "diagram": "Section #15: `015_data-processing-pipeline.md` — CreateGraph → GraphData path",
+      "deepwiki": "Section #15: `015_data-processing-pipeline.md` - lists *_graph_data.json",
+      "example": "N/A - simple example doesn't create graphs",
+      "response": "N/A - JSON is export format",
+      "client": "N/A - KpaResult processing"
+    },
+    "input_shape": {
+      "kpa_result": "KpaResult object"
+    },
+    "output_shape": {
+      "creates": "JSON files with graph node and edge data"
+    },
+    "invariants": [
+      "MUST generate graph data from KPA results",
+      "MUST represent key points as nodes",
+      "MUST include match counts and scores",
+      "MUST support both full and hierarchical graph formats",
+      "JSON MUST be valid and parseable"
+    ],
+    "non_guarantees": [
+      "Specific graph format/schema",
+      "Edge representation details",
+      "Graph layout algorithms"
+    ],
+    "legacy_notes": [
+      "Reference creates: *_graph_data.json, *_hierarchical_graph_data.json",
+      "Reference uses create_graph_data() method",
+      "Reference node structure: {type: 'node', data: {id, kp, n_matches, relative_val, matches}}"
+    ]
+  },
+  {
+    "id": "KPA-028",
+    "title": "DOCX report generation with formatting",
+    "description": "System must support generating formatted Word documents with hierarchical key point summaries",
+    "sources": {
+      "diagram": "Section #15: `015_data-processing-pipeline.md` — HierarchicalGraph → DocxReport",
+      "deepwiki": "Section #35: `035_docx-report-generation.md` (not read but referenced in INDEX)",
+      "example": "N/A - simple example uses print",
+      "response": "N/A - DOCX is export format",
+      "client": "N/A - KpaResult/Utils processing"
+    },
+    "input_shape": {
+      "hierarchical_graph_data": "processed graph structure",
+      "file_path": "string"
+    },
+    "output_shape": {
+      "creates": "Microsoft Word .docx file"
+    },
+    "invariants": [
+      "MUST create valid DOCX file",
+      "MUST include hierarchical key point structure",
+      "MUST include formatting (bullets, indentation)",
+      "MUST be openable in Microsoft Word or compatible software"
+    ],
+    "non_guarantees": [
+      "Specific formatting styles",
+      "Document template design",
+      "Inclusion of metadata/statistics"
+    ],
+    "legacy_notes": [
+      "Reference naming: *_hierarchical.docx",
+      "Reference uses save_hierarchical_graph_data_to_docx()",
+      "Reference uses python-docx library"
+    ]
+  },
+  {
+    "id": "KPA-029",
+    "title": "Text bullet format for hierarchical summaries",
+    "description": "System must support generating plain text hierarchical summaries with bullet indentation",
+    "sources": {
+      "diagram": "Section #15: `015_data-processing-pipeline.md` — HierarchicalGraph → TextBullets",
+      "deepwiki": "Section #34: `034_hierarchical-representations.md` (not read but referenced in INDEX)",
+      "example": "N/A - simple example uses different print format",
+      "response": "N/A - text bullets are alternative format",
+      "client": "N/A - KpaResult/Utils processing"
+    },
+    "input_shape": {
+      "hierarchical_graph_data": "processed graph structure"
+    },
+    "output_shape": {
+      "returns": "string with indented text hierarchy OR creates .txt file"
+    },
+    "invariants": [
+      "MUST generate textual hierarchical representation",
+      "MUST use indentation or symbols to show hierarchy",
+      "MUST include all key points in hierarchy",
+      "MUST be human-readable"
+    ],
+    "non_guarantees": [
+      "Specific indentation style (spaces, tabs, bullets)",
+      "Sort order within levels",
+      "Inclusion of statistics"
+    ],
+    "legacy_notes": [
+      "Reference naming: *_hierarchical_bullets.txt",
+      "Reference uses hierarchical_graph_data_to_textual_bullets()"
+    ]
+  },
+  {
+    "id": "KPA-030",
+    "title": "Graph data filtering by minimum matches",
+    "description": "System must support filtering graph nodes based on minimum match threshold",
+    "sources": {
+      "diagram": "Section #15: `015_data-processing-pipeline.md` — ProcessUtils → FilterNodes → OptimizedGraph",
+      "deepwiki": "Section #15: `015_data-processing-pipeline.md` - shows filter_min_relations in diagram",
+      "example": "N/A - simple example doesn't filter",
+      "response": "N/A - filtering is optional",
+      "client": "N/A - KpaResult/Utils processing"
+    },
+    "input_shape": {
+      "graph_data": "full graph structure",
+      "min_n_similar_matches": "int threshold"
+    },
+    "output_shape": {
+      "returns": "filtered graph structure"
+    },
+    "invariants": [
+      "MUST support filtering nodes by match count threshold",
+      "MUST remove nodes with fewer than threshold matches",
+      "MUST preserve graph structure consistency after filtering"
+    ],
+    "non_guarantees": [
+      "Default threshold value",
+      "Handling of orphaned edges",
+      "Whether filtering affects hierarchy"
+    ],
+    "legacy_notes": [
+      "Reference parameter: min_n_similar_matches",
+      "Reference filters small nodes in ProcessUtils"
+    ]
+  },
+  {
+    "id": "KPA-031",
+    "title": "Graph data filtering by relationship strength",
+    "description": "System must support filtering graph edges based on relationship strength threshold",
+    "sources": {
+      "diagram": "Section #15: `015_data-processing-pipeline.md` — ProcessUtils → FilterEdges → OptimizedGraph",
+      "deepwiki": "Section #15: `015_data-processing-pipeline.md` - shows filter_min_relations",
+      "example": "N/A - simple example doesn't filter",
+      "response": "N/A - filtering is optional",
+      "client": "N/A - KpaResult/Utils processing"
+    },
+    "input_shape": {
+      "graph_data": "full graph structure",
+      "filter_min_relations": "float threshold"
+    },
+    "output_shape": {
+      "returns": "filtered graph structure"
+    },
+    "invariants": [
+      "MUST support filtering edges by relationship strength",
+      "MUST remove weak relationships below threshold",
+      "MUST preserve graph structure consistency after filtering"
+    ],
+    "non_guarantees": [
+      "Default threshold value",
+      "Relationship strength calculation method",
+      "Whether filtering affects node visibility"
+    ],
+    "legacy_notes": [
+      "Reference parameter: filter_min_relations",
+      "Reference filters weak relations in ProcessUtils"
+    ]
+  },
+  {
+    "id": "KPA-032",
+    "title": "Support for predefined key points matching",
+    "description": "System must support analyzing comments against a predefined list of key points instead of auto-extracting",
+    "sources": {
+      "diagram": "Section #21: `021_job-submission-and-execution.md` — shows run_params with keypoints",
+      "deepwiki": "Section #21: `021_job-submission-and-execution.md` - Table shows 'keypoints: List[str]' parameter",
+      "example": "N/A - simple example uses auto-extraction",
+      "response": "N/A - predefined is alternative mode",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:168-211 (run_params)"
+    },
+    "input_shape": {
+      "run_params": "dict with 'keypoints' key containing List[str]"
+    },
+    "output_shape": {
+      "returns": "KpAnalysisTaskFuture (same as auto-extraction)"
+    },
+    "invariants": [
+      "MUST accept predefined key points as list of strings",
+      "MUST match sentences against provided key points only",
+      "MUST NOT extract new key points when predefined list provided",
+      "MUST return matches in same result structure"
+    ],
+    "non_guarantees": [
+      "Maximum number of predefined key points",
+      "Key point text format requirements",
+      "Whether all provided key points appear in results"
+    ],
+    "legacy_notes": [
+      "Reference uses run_params['keypoints'] parameter",
+      "Reference supports alternative: keypoints_by_job_id to reuse from previous job"
+    ]
+  },
+  {
+    "id": "KPA-033",
+    "title": "Configurable sentence length filtering",
+    "description": "System must support filtering sentences by token count before analysis",
+    "sources": {
+      "diagram": "N/A - filtering not shown in diagrams",
+      "deepwiki": "Section #21: `021_job-submission-and-execution.md` - Table shows arg_min_len (default 4) and arg_max_len (default 36)",
+      "example": "N/A - simple example uses defaults",
+      "response": "N/A - filtering affects which sentences appear",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:168-211 (run_params)"
+    },
+    "input_shape": {
+      "run_params": "dict with 'arg_min_len' and 'arg_max_len' keys (integers)"
+    },
+    "output_shape": {
+      "affects": "which sentences are included in analysis"
+    },
+    "invariants": [
+      "MUST support arg_min_len parameter for minimum token count",
+      "MUST support arg_max_len parameter for maximum token count",
+      "MUST exclude sentences below minimum length",
+      "MUST exclude sentences above maximum length",
+      "Length MUST be measured in tokens, not characters"
+    ],
+    "non_guarantees": [
+      "Tokenization algorithm",
+      "Whether bounds are inclusive or exclusive",
+      "Interaction with other filters"
+    ],
+    "legacy_notes": [
+      "Reference defaults: arg_min_len=4, arg_max_len=36",
+      "Reference uses tokens not characters",
+      "Reference parameter in run_params dict"
+    ]
+  },
+  {
+    "id": "KPA-034",
+    "title": "Configurable mapping policy for match strictness",
+    "description": "System must support different matching policies to control strictness of sentence-to-keypoint matching",
+    "sources": {
+      "diagram": "N/A - policy not shown in diagrams",
+      "deepwiki": "Section #21: `021_job-submission-and-execution.md` - Table shows 'mapping_policy: str default NORMAL, options: STRICT, NORMAL, LOOSE'",
+      "example": "N/A - simple example uses default",
+      "response": "N/A - policy affects match inclusion",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:168-211 (run_params)"
+    },
+    "input_shape": {
+      "run_params": "dict with 'mapping_policy' key (string: 'STRICT', 'NORMAL', or 'LOOSE')"
+    },
+    "output_shape": {
+      "affects": "which sentence matches are included based on confidence thresholds"
+    },
+    "invariants": [
+      "MUST support STRICT mapping policy",
+      "MUST support NORMAL mapping policy",
+      "MUST support LOOSE mapping policy",
+      "STRICT MUST result in fewer matches than NORMAL",
+      "LOOSE MUST result in more matches than NORMAL",
+      "MUST accept policy as string parameter"
+    ],
+    "non_guarantees": [
+      "Exact confidence thresholds per policy",
+      "Case sensitivity of policy strings",
+      "Additional policy options"
+    ],
+    "legacy_notes": [
+      "Reference default: mapping_policy='NORMAL'",
+      "Reference accepts: 'STRICT', 'NORMAL', 'LOOSE' as strings"
+    ]
+  },
+  {
+    "id": "KPA-035",
+    "title": "Optional sentence-to-multiple-keypoints matching",
+    "description": "System must support allowing a single sentence to match multiple key points",
+    "sources": {
+      "diagram": "N/A - multi-matching not shown in diagrams",
+      "deepwiki": "Section #21: `021_job-submission-and-execution.md` - Table shows 'sentence_to_multiple_kps: bool default False'",
+      "example": "N/A - simple example uses default",
+      "response": "N/A - affects match multiplicity",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:168-211 (run_params)"
+    },
+    "input_shape": {
+      "run_params": "dict with 'sentence_to_multiple_kps' key (boolean)"
+    },
+    "output_shape": {
+      "affects": "whether sentences can appear under multiple key points"
+    },
+    "invariants": [
+      "MUST support sentence_to_multiple_kps parameter (boolean)",
+      "When False, each sentence MUST match at most one key point",
+      "When True, sentences MAY match multiple key points",
+      "Default behavior MUST match single key point per sentence"
+    ],
+    "non_guarantees": [
+      "Maximum number of key points per sentence when True",
+      "Tie-breaking algorithm when False"
+    ],
+    "legacy_notes": [
+      "Reference default: sentence_to_multiple_kps=False",
+      "Reference parameter in run_params dict"
+    ]
+  },
+  {
+    "id": "KPA-036",
+    "title": "Comprehensive error information in exceptions",
+    "description": "When errors occur, exceptions must provide actionable information about what went wrong",
+    "sources": {
+      "diagram": "N/A - error details not diagrammed",
+      "deepwiki": "Section #24: `024_error-handling-and-monitoring.md` (original lines 1178-1240)",
+      "example": "N/A - example assumes success",
+      "response": "N/A - error case",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:63-83"
+    },
+    "input_shape": {
+      "error_condition": "any condition causing error"
+    },
+    "output_shape": {
+      "exception": "exception object with informative message"
+    },
+    "invariants": [
+      "Exceptions MUST include human-readable error message",
+      "Error messages SHOULD indicate what caused the error",
+      "Error messages SHOULD indicate how to fix the error when possible",
+      "Different error types MUST be distinguishable"
+    ],
+    "non_guarantees": [
+      "Exact message text",
+      "Structured error data beyond message",
+      "Error codes or identifiers"
+    ],
+    "legacy_notes": [
+      "Reference includes HTTP status code in messages",
+      "Reference includes server reason in messages",
+      "Reference logs errors before raising"
+    ]
+  },
+  {
+    "id": "KPA-037",
+    "title": "Result truncation via top_k parameters",
+    "description": "System must support limiting result size by specifying top K key points and/or top K sentences per key point",
+    "sources": {
+      "diagram": "Section #22: `022_result-retrieval.md` — get_result() shows top_k_kps and top_k_sentences_per_kp parameters",
+      "deepwiki": "Section #22: `022_result-retrieval.md` (original lines 1036-1132)",
+      "example": "N/A - simple example doesn't truncate",
+      "response": "N/A - truncation is optional",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:367-383"
+    },
+    "input_shape": {
+      "top_k_kps": "Optional[int] - limit number of key points",
+      "top_k_sentences_per_kp": "Optional[int] - limit sentences per key point"
+    },
+    "output_shape": {
+      "returns": "truncated result with at most top_k_kps key points and top_k_sentences_per_kp sentences each"
+    },
+    "invariants": [
+      "MUST support top_k_kps parameter to limit key point count",
+      "MUST support top_k_sentences_per_kp parameter to limit sentence count per key point",
+      "MUST preserve ranking order when truncating",
+      "MUST return top K by score/relevance, not arbitrary selection",
+      "Parameters MUST be optional (None means no truncation)"
+    ],
+    "non_guarantees": [
+      "Behavior when K exceeds available count",
+      "Whether truncation happens server-side or client-side"
+    ],
+    "legacy_notes": [
+      "Reference passes parameters to get_kp_extraction_job_status()",
+      "Reference supports both parameters simultaneously",
+      "Reference parameters are Optional[int]"
+    ]
+  },
+  {
+    "id": "KPA-038",
+    "title": "Automatic domain creation on first upload",
+    "description": "System must automatically create domain with default parameters if it doesn't exist when uploading comments",
+    "sources": {
+      "diagram": "N/A - implicit behavior not diagrammed",
+      "deepwiki": "Section #20: `020_comment-upload-and-processing.md` docstring states 'If the domain doesn't exist, a domain with default parameters will be created.'",
+      "example": "../../../reference-files/debater_python_api/examples/keypoints_example.py:21 (run() creates temp domain)",
+      "response": "N/A - domain management behavior",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:111-114"
+    },
+    "input_shape": {
+      "domain": "string (potentially non-existent)",
+      "comments_ids": "List[str]",
+      "comments_texts": "List[str]"
+    },
+    "output_shape": {
+      "side_effect": "domain created if not exists"
+    },
+    "invariants": [
+      "MUST create domain automatically if it doesn't exist",
+      "Auto-created domain MUST use default parameters",
+      "MUST NOT error when domain doesn't exist",
+      "MUST allow upload to proceed after auto-creation"
+    ],
+    "non_guarantees": [
+      "Whether server or client creates domain",
+      "Exact default parameter values"
+    ],
+    "legacy_notes": [
+      "Reference docstring: 'It is not mandatory to create a domain before uploading comments into it'",
+      "Reference: 'If the domain doesn't exist, a domain with default parameters will be created'"
+    ]
+  },
+  {
+    "id": "KPA-039",
+    "title": "Re-upload safety for duplicate comments",
+    "description": "System must handle re-uploading the same comments safely without errors or duplication",
+    "sources": {
+      "diagram": "N/A - idempotency not diagrammed",
+      "deepwiki": "Section #20: `020_comment-upload-and-processing.md` docstring states 'Re-uploading the same comments (same domain + comment_id, text is ignored) is not problematic (and relativly quick).'",
+      "example": "N/A - example uploads once",
+      "response": "N/A - upload behavior",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:113-114"
+    },
+    "input_shape": {
+      "domain": "string",
+      "comments_ids": "List[str] (some or all previously uploaded)",
+      "comments_texts": "List[str]"
+    },
+    "output_shape": {
+      "behavior": "successfully handles duplicates without error"
+    },
+    "invariants": [
+      "MUST handle re-upload of same comment_id without error",
+      "MUST NOT create duplicate comment entries",
+      "MUST identify duplicates by domain + comment_id combination",
+      "Re-upload MUST be idempotent"
+    ],
+    "non_guarantees": [
+      "Whether text changes are detected for same ID",
+      "Performance characteristics of re-upload",
+      "Whether re-upload triggers reprocessing"
+    ],
+    "legacy_notes": [
+      "Reference docstring: 'Re-uploading the same comments (same domain + comment_id, text is ignored) is not problematic (and relativly quick)'",
+      "Reference key is domain + comment_id, text ignored for duplicate detection"
+    ]
+  },
+  {
+    "id": "KPA-040",
+    "title": "Progress reporting during processing",
+    "description": "System must report progress information when jobs are in PROCESSING state",
+    "sources": {
+      "diagram": "Section #22: `022_result-retrieval.md` — PROCESSING state shows progress field",
+      "deepwiki": "Section #22: `022_result-retrieval.md` (original lines 1036-1132)",
+      "example": "N/A - example waits silently",
+      "response": "N/A - progress reporting",
+      "client": "../../../reference-files/debater_python_api/api/clients/keypoints_client.py:392-396"
+    },
+    "input_shape": {
+      "job_status": "status response when state is PROCESSING"
+    },
+    "output_shape": {
+      "progress_field": "included in status response"
+    },
+    "invariants": [
+      "PROCESSING state SHOULD include progress information",
+      "Progress information MUST indicate partial completion",
+      "Progress MUST be monotonically increasing (not decrease)"
+    ],
+    "non_guarantees": [
+      "Progress format (percentage, fraction, description)",
+      "Progress granularity",
+      "Whether progress is always present in PROCESSING state"
+    ],
+    "legacy_notes": [
+      "Reference accesses result['progress']",
+      "Reference logs: 'job_id %s is running, progress: %s'",
+      "Reference calls _print_progress_bar(progress)"
+    ]
+  }
+]

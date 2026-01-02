@@ -1,0 +1,124 @@
+SPEC REVIEWER REPORT
+====================
+Date: 2026-01-01
+Cards reviewed: 12
+Cards modified: 6
+Total invariants moved to legacy_notes: 8
+
+CHANGES BY CARD
+---------------
+
+ED-001: Client must accept list of sentence-topic dictionaries as input
+  NO CHANGES (all invariants are behavior-level)
+  - All invariants describe input shape requirements (list, dict, keys, types)
+  - These are technology-agnostic behavioral requirements
+
+ED-002: Client must validate that sentence and topic fields are not empty
+  NO CHANGES (all invariants are behavior-level)
+  - Validation rules are behavioral (reject empty strings, raise exception)
+  - Error message text already in legacy_notes
+  - Invariants correctly focus on the validation behavior, not the message format
+
+ED-003: Client must transform input dictionaries into sentence-topic pairs
+  MOVED: "Transformed pairs MUST be passed to batch processing"
+  REASON: This was implementation-specific (implies method call pattern)
+  REPLACEMENT: Removed - behavior already covered by "Transformation MUST occur after validation"
+  ADDED TO NON_GUARANTEES: "How transformed data is passed to batch processing layer"
+  ADDED TO LEGACY_NOTES: "Reference passes transformed pairs to run_in_batch with list_name='sentence_topic_pairs'"
+
+ED-004: Client must inherit from AbstractClient and use batch processing
+  MOVED: "Transformed pairs MUST be passed to batch processing" (removed from ED-003, redundant here)
+  REASON: Implementation detail about method parameters
+  ADDED TO INVARIANTS: "Endpoint MUST be configurable for service communication"
+  ADDED TO INVARIANTS: "Timeout MUST be configurable for service communication"
+  REASON: Configurability is behavioral requirement; hardcoded values are implementation
+  ADDED TO LEGACY_NOTES: "Reference method name: run_in_batch"
+  ADDED TO LEGACY_NOTES: "Reference list_name parameter: 'sentence_topic_pairs'"
+
+  NOTE: The specific endpoint '/score/' and timeout '100 seconds' were already in legacy_notes.
+  The new invariants require these be configurable, which is technology-agnostic.
+
+ED-005: Client must return confidence scores in same order as input
+  NO CHANGES (all invariants are behavior-level)
+  - All invariants describe output shape and ordering guarantees
+  - Specific score values already in legacy_notes
+  - Format strings already in legacy_notes
+
+ED-006: Client must implement run method as primary entry point
+  NO CHANGES (all invariants are behavior-level)
+  - Requirement for a primary entry point method is architectural
+  - Method name is captured in input_shape, not mandated in invariants
+  - Parameter requirements are behavioral (what it accepts, what it returns)
+
+ED-007: System must log performance metrics for run method
+  ADDED TO LEGACY_NOTES: "Reference log message format includes method name and milliseconds"
+  REASON: Documenting the specific format used in reference implementation
+  NOTE: Invariants correctly focus on behavior (capture timestamps, calculate duration)
+  - Specific log message format already listed as non-guarantee
+
+ED-008: Client must initialize with API key authentication
+  MOVED: "Client MUST be obtainable from DebaterApi factory"
+  REASON: "DebaterApi" is vendor-specific class name
+  REPLACEMENT: "Client MUST be obtainable from factory"
+  ADDED TO LEGACY_NOTES: "Reference factory class name: DebaterApi"
+
+ED-009: EvidenceDetectionClient must be distinct from ClaimDetectionClient
+  MOVED: Hardcoded URLs already in legacy_notes
+  ADDED TO INVARIANTS: "Service endpoint MUST be configurable per client type"
+  REASON: Configurability is behavioral; specific URLs are implementation
+  ADDED TO LEGACY_NOTES: "Reference class names: ClaimDetectionClient, EvidenceDetectionClient, ClaimEvidenceDetectionClient"
+  REASON: These specific names are implementation choices
+
+ED-010: Client must handle network and service communication errors
+  ADDED TO LEGACY_NOTES: "Reference communication protocol: HTTP"
+  REASON: HTTP is a specific protocol choice
+  NOTE: Invariants correctly focus on error handling behaviors (handle network errors, timeouts, etc.)
+  - The requirement to handle these error types is technology-agnostic
+
+ED-011: System must process Input through validation, transformation, and batch stages
+  NO CHANGES (all invariants are behavior-level)
+  - Pipeline stages and ordering are architectural requirements
+  - Stage names are descriptive, not implementation-specific
+  - Legacy notes already document line numbers for reference implementation
+
+ED-012: Input validation must check all pairs before processing any
+  NO CHANGES (all invariants are behavior-level)
+  - Validation strategy (check before processing) is behavioral
+  - Exception behavior is behavioral
+  - Specific implementation (for loop) already in legacy_notes
+
+SUMMARY
+-------
+The review found that the Spec Librarian did an excellent job of separating behavioral
+requirements from implementation details. Most cards required no changes or only minor
+adjustments.
+
+Key patterns identified and corrected:
+
+1. **Configurability vs Hardcoded Values**: ED-004 and ED-009 were enhanced to require
+   configurability for endpoints and timeouts rather than allowing hardcoded values. The
+   specific values from the reference system remain in legacy_notes.
+
+2. **Vendor-Specific Names**: Removed "DebaterApi" as a required name (ED-008), while
+   preserving the architectural requirement for a factory pattern.
+
+3. **Protocol Specifics**: Moved "HTTP" to legacy_notes (ED-010), keeping the error
+   handling behaviors as invariants.
+
+4. **Method Names and Parameters**: Ensured specific method names like "run_in_batch"
+   and parameter names like "list_name" are in legacy_notes, not invariants.
+
+The requirement cards are now properly filtered for technology-agnostic behavioral
+requirements. The invariants describe WHAT must happen, while legacy_notes document
+HOW the reference implementation achieved it.
+
+CRITICAL OBSERVATIONS
+---------------------
+1. Input/output shapes remain perfectly technology-agnostic (lists, dicts, strings, numbers)
+2. Validation rules are behavioral (empty check, exception on failure)
+3. Pipeline ordering is architectural (validation → transformation → batch)
+4. Error handling requirements are behavioral (handle timeouts, network errors)
+5. All vendor names, URLs, method names, and specific formats are in legacy_notes
+
+The cards are now ready for implementation in any technology stack while maintaining
+behavioral compatibility with the reference system.

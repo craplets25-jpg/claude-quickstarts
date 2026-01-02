@@ -1,0 +1,96 @@
+SPEC REVIEWER REPORT
+====================
+Date: 2026-01-01
+Cards reviewed: 18
+Cards modified: 3
+Total invariants moved to legacy_notes: 4
+
+CHANGES BY CARD
+---------------
+
+ED-001: Factory-based client instantiation
+  NO CHANGES (all invariants are behavior-level)
+
+ED-002: Sentence-topic pair input format
+  NO CHANGES (all invariants are behavior-level)
+
+ED-003: Empty string validation
+  NO CHANGES (all invariants are behavior-level)
+
+ED-004: Numerical confidence scores
+  NO CHANGES (all invariants are behavior-level)
+
+ED-005: Data transformation: dict to pairs
+  NO CHANGES (all invariants are behavior-level)
+
+ED-006: Batch processing abstraction
+  NO CHANGES (all invariants are behavior-level)
+
+ED-007: Order preservation
+  NO CHANGES (all invariants are behavior-level)
+
+ED-008: Public API boundary: run() method
+  MOVED: "MUST provide public run() method as entry point"
+  REASON: Specific method name "run" is implementation detail
+  REPLACEMENT: "MUST provide public method as entry point for processing"
+  ADDED TO LEGACY_NOTES: "Reference method name: run"
+
+ED-009: Inheritance from abstract base
+  NO CHANGES (all invariants are behavior-level)
+
+ED-010: Authentication via API key
+  MOVED: "MUST require API key for authentication"
+  REASON: Specific authentication mechanism (API key) is implementation detail
+  REPLACEMENT: "MUST require authentication credentials"
+  ADDED TO LEGACY_NOTES: "Reference uses API key authentication"
+
+ED-011: Performance logging
+  NO CHANGES (all invariants are behavior-level)
+
+ED-012: Timeout handling
+  NO CHANGES (all invariants are behavior-level)
+
+ED-013: Network error handling
+  NO CHANGES (all invariants are behavior-level)
+
+ED-014: Service endpoint configuration
+  MOVED: "MUST connect to appropriate evidence detection service"
+  REASON: Implicit reference to specific service implementation
+  REPLACEMENT: "MUST have configurable service endpoint"
+
+  MOVED: "MUST use correct service endpoint path"
+  REASON: Reference to specific path implementation detail
+  REPLACEMENT: Already covered by "MUST have configurable service endpoint"
+  ADDED TO LEGACY_NOTES: "Reference connects to evidence detection service at specific URL"
+
+ED-015: Distinguishable from claim detection
+  NO CHANGES (all invariants are behavior-level)
+
+ED-016: Input cardinality: empty list handling
+  NO CHANGES (all invariants are behavior-level)
+
+ED-017: Result aggregation across batches
+  NO CHANGES (all invariants are behavior-level)
+
+ED-018: Structural validation: required keys
+  NO CHANGES (all invariants are behavior-level)
+
+SUMMARY
+-------
+The requirement cards were generally well-structured with good separation between
+behavior and implementation. Most invariants correctly captured technology-agnostic
+behavioral requirements.
+
+Key patterns addressed:
+1. Specific method name "run" → generalized to "public method as entry point"
+2. "API key" authentication → generalized to "authentication credentials"
+3. Specific service connection requirements → generalized to "configurable service endpoint"
+
+The cards showed good use of the legacy_notes field to preserve implementation details
+from the reference system while keeping invariants focused on behavioral contracts.
+Most validation, input/output shape, and ordering requirements were already properly
+stated as technology-agnostic behaviors.
+
+Overall assessment: The original card set was high quality with minimal technology
+coupling. Only 4 invariants required moving to legacy_notes across 3 cards out of 18
+total cards.
