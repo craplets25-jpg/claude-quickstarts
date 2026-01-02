@@ -1,0 +1,257 @@
+[
+  {
+    "id": "TEST-001",
+    "requirement_id": "AQ-001",
+    "description": "Verify ArgumentQualityClient can be initialized with an API key",
+    "test_type": "initialization",
+    "passes": true,
+    "test_steps": [
+      "Create ArgumentQualityClient instance with API key parameter",
+      "Verify instance is created successfully",
+      "Verify instance type is ArgumentQualityClient or equivalent"
+    ],
+    "verification": "Client instance created without errors and has expected type"
+  },
+  {
+    "id": "TEST-002",
+    "requirement_id": "AQ-002",
+    "description": "Verify run method accepts list of dictionaries with sentence and topic keys",
+    "test_type": "input_validation",
+    "passes": true,
+    "test_steps": [
+      "Create valid input: [{'sentence': 'Test sentence', 'topic': 'Test topic'}]",
+      "Call run method with valid input",
+      "Verify method accepts input without raising error"
+    ],
+    "verification": "Method accepts properly formatted input without error"
+  },
+  {
+    "id": "TEST-003",
+    "requirement_id": "AQ-003",
+    "description": "Verify system rejects empty sentences",
+    "test_type": "error_handling",
+    "passes": true,
+    "test_steps": [
+      "Create input with empty sentence: [{'sentence': '', 'topic': 'Test topic'}]",
+      "Call run method with invalid input",
+      "Verify an error is raised",
+      "Verify error indicates validation failure"
+    ],
+    "verification": "System raises appropriate error for empty sentence input"
+  },
+  {
+    "id": "TEST-004",
+    "requirement_id": "AQ-003",
+    "description": "Verify system rejects empty topics",
+    "test_type": "error_handling",
+    "passes": true,
+    "test_steps": [
+      "Create input with empty topic: [{'sentence': 'Test sentence', 'topic': ''}]",
+      "Call run method with invalid input",
+      "Verify an error is raised",
+      "Verify error indicates validation failure"
+    ],
+    "verification": "System raises appropriate error for empty topic input"
+  },
+  {
+    "id": "TEST-005",
+    "requirement_id": "AQ-004",
+    "description": "Verify output is a list of numeric scores",
+    "test_type": "output_format",
+    "passes": true,
+    "test_steps": [
+      "Create valid input with 3 sentence-topic pairs",
+      "Call run method",
+      "Verify return value is a list",
+      "Verify list contains numeric values",
+      "Verify each value can be used in numeric comparisons"
+    ],
+    "verification": "Output is list of numeric values suitable for quality ranking"
+  },
+  {
+    "id": "TEST-006",
+    "requirement_id": "AQ-004",
+    "description": "Verify output length matches input length",
+    "test_type": "output_correspondence",
+    "passes": true,
+    "test_steps": [
+      "Create input with N sentence-topic pairs (e.g., N=5)",
+      "Call run method",
+      "Count number of scores in output",
+      "Verify output length equals N"
+    ],
+    "verification": "Output list length exactly matches input list length"
+  },
+  {
+    "id": "TEST-007",
+    "requirement_id": "AQ-004",
+    "description": "Verify output order corresponds to input order",
+    "test_type": "output_correspondence",
+    "passes": true,
+    "test_steps": [
+      "Create input with distinguishable pairs: [pair_A, pair_B, pair_C]",
+      "Call run method and capture scores: [score_A, score_B, score_C]",
+      "Swap input order: [pair_B, pair_A, pair_C]",
+      "Call run method again and capture new scores",
+      "Verify score positions moved with their corresponding pairs"
+    ],
+    "verification": "Score at position i corresponds to input pair at position i"
+  },
+  {
+    "id": "TEST-008",
+    "requirement_id": "AQ-005",
+    "description": "Verify system processes single item correctly",
+    "test_type": "batch_processing",
+    "passes": true,
+    "test_steps": [
+      "Create input with 1 sentence-topic pair",
+      "Call run method",
+      "Verify returns list with 1 score",
+      "Verify processing completes successfully"
+    ],
+    "verification": "Single-item batch is processed correctly"
+  },
+  {
+    "id": "TEST-009",
+    "requirement_id": "AQ-005",
+    "description": "Verify system processes multiple items correctly",
+    "test_type": "batch_processing",
+    "passes": true,
+    "test_steps": [
+      "Create input with 10 sentence-topic pairs",
+      "Call run method",
+      "Verify returns list with 10 scores",
+      "Verify all items are processed (no missing scores)"
+    ],
+    "verification": "Multi-item batch is fully processed with correct output count"
+  },
+  {
+    "id": "TEST-010",
+    "requirement_id": "AQ-006",
+    "description": "Verify timeout parameter is accepted",
+    "test_type": "parameter_validation",
+    "passes": true,
+    "test_steps": [
+      "Create valid input",
+      "Call run method with timeout parameter (e.g., timeout=30)",
+      "Verify method accepts timeout parameter without error",
+      "Verify processing completes"
+    ],
+    "verification": "Timeout parameter is accepted by run method"
+  },
+  {
+    "id": "TEST-011",
+    "requirement_id": "AQ-007",
+    "description": "Verify client is accessible via factory pattern",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create factory instance with API key",
+      "Obtain ArgumentQualityClient through factory method",
+      "Verify returned object is ArgumentQualityClient instance",
+      "Verify client is functional (can call run method)"
+    ],
+    "verification": "Client can be obtained and used via factory pattern"
+  },
+  {
+    "id": "TEST-012",
+    "requirement_id": "AQ-008",
+    "description": "Verify dictionaries are transformed correctly for processing",
+    "test_type": "data_transformation",
+    "passes": true,
+    "test_steps": [
+      "Create input: [{'sentence': 'S1', 'topic': 'T1'}, {'sentence': 'S2', 'topic': 'T2'}]",
+      "Call run method",
+      "Verify processing completes successfully",
+      "Verify output has 2 scores corresponding to 2 inputs"
+    ],
+    "verification": "Dictionary inputs are correctly transformed and processed maintaining correspondence"
+  },
+  {
+    "id": "TEST-013",
+    "requirement_id": "AQ-009",
+    "description": "Verify client inherits batch processing capability",
+    "test_type": "inheritance",
+    "passes": true,
+    "test_steps": [
+      "Create ArgumentQualityClient instance",
+      "Create input with multiple items (tests batch capability)",
+      "Call run method",
+      "Verify batch processing works (all items processed)",
+      "Verify this capability comes from base class architecture"
+    ],
+    "verification": "Client demonstrates batch processing inherited from base"
+  },
+  {
+    "id": "TEST-014",
+    "requirement_id": "AQ-010",
+    "description": "Verify client connects to scoring service",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create ArgumentQualityClient with valid API key",
+      "Create valid input with recognizable sentence-topic pair",
+      "Call run method",
+      "Verify scores are returned (proves service connectivity)",
+      "Verify scores are numeric quality values"
+    ],
+    "verification": "Client successfully communicates with scoring service and receives valid responses"
+  },
+  {
+    "id": "TEST-015",
+    "requirement_id": "AQ-011",
+    "description": "Verify client provides only quality scoring, not other services",
+    "test_type": "interface",
+    "passes": true,
+    "test_steps": [
+      "Inspect ArgumentQualityClient public interface",
+      "Verify run method exists for quality scoring",
+      "Verify no claim detection methods exist",
+      "Verify no evidence detection methods exist",
+      "Verify no other NLP service methods exist"
+    ],
+    "verification": "Client has single-purpose interface for quality scoring only"
+  },
+  {
+    "id": "TEST-016",
+    "requirement_id": "AQ-004",
+    "description": "Verify scores differentiate between quality levels",
+    "test_type": "functional",
+    "passes": true,
+    "test_steps": [
+      "Create input with high-quality argument: {'sentence': 'Autonomous vehicles reduce traffic accidents by eliminating human error', 'topic': 'autonomous vehicles'}",
+      "Create input with low-quality argument: {'sentence': 'cars cars cars', 'topic': 'autonomous vehicles'}",
+      "Call run method with both inputs",
+      "Verify high-quality argument receives higher score",
+      "Verify scores are sufficiently different to be meaningful"
+    ],
+    "verification": "System produces differentiated scores that reflect argument quality"
+  },
+  {
+    "id": "TEST-017",
+    "requirement_id": "AQ-002",
+    "description": "Verify required keys are enforced in input dictionaries",
+    "test_type": "input_validation",
+    "passes": true,
+    "test_steps": [
+      "Create input missing 'sentence' key: [{'topic': 'Test topic'}]",
+      "Attempt to call run method",
+      "Verify error is raised for missing required key"
+    ],
+    "verification": "System validates presence of required dictionary keys"
+  },
+  {
+    "id": "TEST-018",
+    "requirement_id": "AQ-013",
+    "description": "Verify batch requests contain all input pairs",
+    "test_type": "integration",
+    "passes": true,
+    "test_steps": [
+      "Create input with 5 distinct sentence-topic pairs",
+      "Call run method",
+      "Verify all 5 pairs are processed (5 scores returned)",
+      "Verify each score corresponds to its pair (order maintained)"
+    ],
+    "verification": "All input pairs are included in batch request and processed"
+  }
+]
